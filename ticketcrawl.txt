@@ -1,0 +1,20 @@
+https://billing.int.liquidweb.com/mysql/content/admin/account/summary/index.mhtml?accnt=228436 Ashish Mehta email issue - 52 / 115 tickets
+
+
+3/16/2018 - 01865383 - email issue - chat - site created orders, customer claimed no email was sent.  tech saw emails coming from the supplied address, not being sent to.  customer idled
+
+3/16/2018 - 01864356 - email issue - chat - customer claims emails not sending between 2 domains. tech points out neither domain is hosted on server.  cust begins asking unrelated questions about general linux command line.  customer idled
+
+3/16/2018 - 01864316 - email issue help - chat - customer auths, immediately idles
+
+3/14/2018 - 01857664 - country block code - chat - request to deny all of philippines via htaccess.  cust idles chat
+
+3/13/2018 - 01856486 - mysql server is down? - chat - states mysql is down, restarts it himself.  disk full.  tech clears temp files
+
+3/9/2018 - 01844595 - installation - chat - auth'd, immediately idled
+
+3/9/2018 - 01844557 - imstallation - chat - cust provides a zip file, idles
+
+3/8/2018 - 01841858 - installation - chat - cust provides zip file, idles
+
+
