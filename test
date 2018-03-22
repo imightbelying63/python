@@ -1,0 +1,12 @@
+<VirtualHost 50.28.61.100:80>
+  ServerName imightbelying.com
+  ServerAlias fuckmeimightbelying.com mail.fuckmeimightbelying.com mail.imightbelying.com www.fuckmeimightbelying.com www.imightbelying.com
+  DocumentRoot /home/imightbe/public_html
+  ServerAdmin webmaster@imightbelying.com
+  UseCanonicalName Off
+  CustomLog /etc/apache2/logs/domlogs/imightbelying.com combined
+  <IfModule log_config_module>
+    <IfModule logio_module>
+      CustomLog /etc/apache2/logs/domlogs/imightbelying.com-bytes_log "%{%s}t %I .\n%{%s}t %O ."
+    </IfModule>
+  </IfModule>
