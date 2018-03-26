@@ -1,3 +1,7 @@
+"""this just parses and pretty-formats some short notes I was generating about certain customers.
+   really i just wanted an excuse to mess around with format spec mini-lang
+   """
+
 import re
 import os,sys
 
