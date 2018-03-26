@@ -1,10 +1,10 @@
+"""This will look at all domains listed in apache httpd.conf
+   and return if it resolves to the server or not"""
+
 from subprocess import check_output
 import re
 import dns.resolver
 import os,sys
-
-"""This will look at all domains listed in apache httpd.conf
-   and return if it resolves to the server or not"""
 
 #server_ip_addr = os.popen('ip addr show eth0').read().split('inet ')[1].split("/")[0]
 #need to have all IPs actually
