@@ -1,4 +1,7 @@
 #!/bin/env python
+"""cpanel lacks a cli for scripting thru moving accounts, eg home1 -> home2
+   this handles that"""
+
 import os,re,sys,errno,subprocess
 
 CONST_NAME = "wwwacct.conf"
