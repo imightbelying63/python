@@ -1,4 +1,4 @@
-"""This will look at all domains listed in apache httpd.conf
+"""This will look at all domains listed in apache httpd.conf 
    and return if it resolves to the server or not"""
 
 from subprocess import check_output
