@@ -1,3 +1,5 @@
+"""uhhh this extracts what appears to jumble the navyseals copypasta and extract real words from it"""
+
 import random
 
 DICTWORDFILE = '/etc/dictionaries-common/words'
