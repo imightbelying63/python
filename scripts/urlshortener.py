@@ -20,9 +20,10 @@ def printUsage():
 
 def generateShortURL():
     """input is irrelevant, use urandom"""
+    """youtube uses b64 for urls, but i dont need 12 positions like they do"""
 
     url = base64.b64encode(os.urandom(URL_LEN)).decode()
-    url = url.replace("/", "_")
+    url = url.replace("/", "_") #the one b64 character that shouldnt be in a URI string
     return url
 
 def isDuplicate(short):
