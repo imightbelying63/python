@@ -1,7 +1,7 @@
 """takes url input, gives a generated short link.  at present, this script:
     - is basically just a practice in modularity
     - uses a text based backend
-    - doesnt actually use a fqdn
+    - doesnt actually use a (currently) working fqdn
     - is a strong independent python that dont need no man
 """
 
