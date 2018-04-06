@@ -13,3 +13,7 @@ tikparse.py: this just parses and pretty-formats some short notes I was generati
    really i just wanted an excuse to mess around with format spec mini-lang
    
 urlshortener.py: simple url shortener
+
+
+upgrade_blocker.py: checks for cpanel update blocks and determines what needs doing.
+             refer here: https://documentation.cpanel.net/display/70Docs/Upgrade+Blockers
