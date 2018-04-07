@@ -12,6 +12,7 @@
 
   Current exit codes:
    1: non-root
+   2: python or centos version too low
 
   Author: khughes
   Version: 0.1
