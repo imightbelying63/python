@@ -36,5 +36,5 @@ def findReleaseVersion():
             if release_regex.match(tier):
                 release_tier_version = release_regex.match(tier).group(1)
                 return release_tier_version
-    elif:
+    else:
         return print("Unable to download cpanel tiers")
