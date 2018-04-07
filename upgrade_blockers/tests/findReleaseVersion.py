@@ -1,5 +1,6 @@
 if __name__ == "__main__":
-    import testimports
+    import subprocess, re
+    
 def findReleaseVersion():
     proc = subprocess.run(['curl', 'http://httpupdate.cpanel.net/cpanelsync/TIERS', '-s'], stdout=subprocess.PIPE)
     tiers_list = proc.stdout.decode().splitlines()
@@ -11,3 +12,5 @@ def findReleaseVersion():
             return release
 
     return None
+
+print(findReleaseVersion())
