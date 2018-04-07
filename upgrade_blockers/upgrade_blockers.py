@@ -26,29 +26,6 @@ if os.geteuid() > 0:
     cpanel_version = version_file.read()[:5]
 print(cpanel_version)"""
 
-"""def findReleaseVersion():
-    tier_request = requests.get("http://httpupdate.cpanel.net/cpanelsync/TIERS")
-    if tier_request.status_code == 200:
-        release_regex = re.compile("^release:(.*)?")
-        tier_returns = tier_request.text.splitlines()
-        for tier in tier_returns:
-            if release_regex.match(tier):
-                release_tier_version = release_regex.match(tier).group(1)
-                return release_tier_version
-    else:
-        return print("Unable to download cpanel tiers")
-"""
 
-def findReleaseVersion():
-    proc = subprocess.run(['curl', 'http://httpupdate.cpanel.net/cpanelsync/TIERS', '-s'], stdout=subprocess.PIPE)
-    tiers_list = proc.stdout.decode().splitlines()
 
-    regex = re.compile("^release:(.*)?")
-    for t in tiers_list:
-        if regex.match(t):
-            release = regex.match(t).group(1)
-            return release
-
-    return None
-
-print(findReleaseVersion())
+#tests/findReleaseVersion()
