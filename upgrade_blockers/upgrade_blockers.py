@@ -8,6 +8,8 @@
 
   This will work around python3 unavailability on cent 4/5 because those are guaranteed blockers anyway
 
+  At present, most code is separated out into single test files stored under tests/
+
   Current exit codes:
    1: non-root
 
@@ -22,10 +24,5 @@ if os.geteuid() > 0:
     print("Script must run as root")
     sys.exit(1)
 
-"""with open("/usr/local/cpanel/version") as version_file:
-    cpanel_version = version_file.read()[:5]
-print(cpanel_version)"""
-
-
-
+#tests/findCpanelVersion()
 #tests/findReleaseVersion()
