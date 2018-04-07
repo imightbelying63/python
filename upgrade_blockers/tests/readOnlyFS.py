@@ -13,8 +13,7 @@ def readOnlyFS():
             '/tmp',
             '/var/tmp']
     for fs in filesystems:
-        if not os.access(fs, os.W_OK|os.X_OX):
+        if not os.access(fs, os.W_OK|os.X_OK):
             return False
     return True
 
-readOnlyFS()
