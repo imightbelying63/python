@@ -28,11 +28,12 @@ import re, subprocess, platform
     print("Script must run as root")
     sys.exit(1)"""
 
-if TESTING_MODE == 1:
-    from tests import *
+
+#platformDepsCheck()
+#cpanel_version = findCpanelVersion()
+#cpanel_release_version = findReleaseVersion()
 
 
-
-#tests/platformDeps()
+#tests/platformDepsCheck()
 #tests/findCpanelVersion()
 #tests/findReleaseVersion()
