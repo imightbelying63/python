@@ -18,13 +18,20 @@
   Version: 0.1
 """
 
+TESTING_MODE = 1
+
 import os, sys
 import re, subprocess, platform
 
 #This script must be run as root
-if os.geteuid() > 0:
+"""if os.geteuid() > 0:
     print("Script must run as root")
-    sys.exit(1)
+    sys.exit(1)"""
+
+if TESTING_MODE == 1:
+    from tests import *
+
+
 
 #tests/platformDeps()
 #tests/findCpanelVersion()
