@@ -1,0 +1,7 @@
+script to check for and report upgrade blockers on cPanel
+
+https://documentation.cpanel.net/display/70Docs/Upgrade+Blockers
+
+this one is not listed in documentation:
+
+FATAL: There are active transfers to this server. Updates will be blocked until those transfers complete or are aborted.
