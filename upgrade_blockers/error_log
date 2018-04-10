@@ -1,0 +1,4 @@
+[10-Apr-2018 22:43:17 UTC] PHP Warning:  Module 'imagick' already loaded in Unknown on line 0
+[10-Apr-2018 22:43:17 UTC] PHP Warning:  Module 'imagick' already loaded in Unknown on line 0
+[10-Apr-2018 22:43:17 UTC] PHP Warning:  Module 'xdebug' already loaded in Unknown on line 0
+[10-Apr-2018 22:43:17 UTC] PHP Warning:  Xdebug MUST be loaded as a Zend extension in Unknown on line 0

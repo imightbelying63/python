@@ -24,9 +24,9 @@ import os, sys
 import re, subprocess, platform
 
 #This script must be run as root
-"""if os.geteuid() > 0:
+if os.geteuid() > 0:
     print("Script must run as root")
-    sys.exit(1)"""
+    sys.exit(1)
 
 
 #platformDepsCheck()
