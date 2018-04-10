@@ -5,3 +5,17 @@ https://documentation.cpanel.net/display/70Docs/Upgrade+Blockers
 this one is not listed in documentation:
 
 FATAL: There are active transfers to this server. Updates will be blocked until those transfers complete or are aborted.
+
+----
+
+Hello,
+
+This ticket is to notify you that your server ___________________ is currently running cPanel version _____ which is out of date and has not received security updates since _________________.
+
+In the past year alone cPanel has discovered and patched more than thirty potential vulnerabilities of various levels of severity. The majority of these vulnerabilities were self-reported and therefore not a threat at the time, however because they have since been disclosed there is an elevated potential that these exploits could be used against outdated versions of the software, potentially resulting in your server itself or the sites that it hosts becoming compromised.
+
+Because of these concerns, Liquid Web will be adopting a new policy within the next few months where our first step in troubleshooting any issue will be to ensure that the version of cPanel being used is in date, and providing assistance with the update process if it is not.
+
+It looks like these updates are currently being held back by _______________, however it's possible that there will be other changes that need to be made along the way in order to get you to the most current version. Most of these blockers are easy enough to fix such as missing configuration options, but occasionally in order to move forward with updates, larger changes will need to be made as well.
+
+Given the concerns listed above, would it be acceptable for us to begin addressing these issues and performing the updates necessary to get your server on a currently supported version of cPanel?
