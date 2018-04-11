@@ -62,6 +62,7 @@ def licenseCheck():
         return False
 
 def readOnlyFS():
+    #this could probably do more to inform which fs is unwritable
     filesystems = ['/etc',
             '/var',
             '/var/lib/rpm',
@@ -95,3 +96,18 @@ def rpmCheck():
 """START TESTS"""
 
 platformDepsCheck() #this kills processing now if not passed
+
+standard_blockers = []
+specific_blockers = []
+
+if not licenseCheck():
+    standard_blockers.append('Invalid cPanel license')
+if not readOnlyFS():
+    standard_blockers.append('One or more required filesystems are currently read-only.  Refer to: https://documentation.cpanel.net/display/68Docs/Upgrade+Blockers#UpgradeBlockers-Read-onlyfilesystems')
+if not rpmCheck():
+    standard_blockers.append('The RPM databases is corrupt, or yum is currently unusable')
+
+
+"""END TESTS"""
+
+print(standard_blockers,specific_blockers)
