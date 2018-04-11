@@ -20,6 +20,7 @@
     script specific:
      +  platformDepsCheck(): checks that OS is centos 6 or greater,
                            checks that python is 3
+     + mysqlVersion(): return mysql version string as a float Maj.Min
 
     standard checks:
      +  licenseCheck(): simply checks that a license file exists,
@@ -52,6 +53,10 @@ def platformDepsCheck():
     except:
         print("Python 3 is required")
         sys.exit(2)
+
+def mysqlVersion():
+    version = subprocess.getstatusoutput('mysqladmin version|grep -i "server version"')[1].expandtabs().split()[2]
+    return float(''.join(version[:3]))
 
 """BEGIN STANDARD CHECKS ROUTINES"""
 
