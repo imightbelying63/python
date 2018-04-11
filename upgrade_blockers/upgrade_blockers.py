@@ -82,11 +82,12 @@ def rpmCheck():
 
     return False
 
-#platformDepsCheck()
-#cpanel_version = findCpanelVersion()
-#cpanel_release_version = findReleaseVersion()
+"""END STANDARD CHECKS ROUTINES"""
 
+"""BEGIN VERSION-SPECIFIC CHECKS ROUTINES"""
 
-#tests/platformDepsCheck()
-#tests/findCpanelVersion()
-#tests/findReleaseVersion()
+"""END VERSION-SPECIFIC CHECKS ROUTINES"""
+
+"""START TESTS"""
+
+platformDepsCheck() #this kills processing now if not passed
