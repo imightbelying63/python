@@ -52,6 +52,15 @@ def readOnlyFS():
             return False
     return True
 
+def rpmCheck():
+    test_rpm = 'sl' #DO NOT USE IN PRODUCTION, sl IS IN EPEL
+
+    if subprocess.getstatusoutput('yum -y --quiet install sl')[0] == 0:
+        if subprocess.getstatusoutput('yum -y --quiet remove sl')[0] == 0:
+            return True
+
+    return False
+
 #platformDepsCheck()
 #cpanel_version = findCpanelVersion()
 #cpanel_release_version = findReleaseVersion()
