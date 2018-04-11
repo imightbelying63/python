@@ -42,11 +42,15 @@ if os.geteuid() > 0:
     sys.exit(1)
 
 def platformDepsCheck():
-    if float(platform.linux_distribution()[1]) < 6:
-        print("CentOS 6 or above is required")
-        sys.exit(2)
-    if int(sys.version[:1]) < 3:
-        print("Python3 is required")
+    try:
+        if float(platform.linux_distribution()[1]) < 6:
+            print("CentOS 6 or above is required")
+            sys.exit(2)
+        if int(sys.version[:1]) < 3:
+            print("Python3 is required")
+            sys.exit(2)
+    except:
+        print("Python 3 is required")
         sys.exit(2)
 
 """BEGIN STANDARD CHECKS ROUTINES"""
