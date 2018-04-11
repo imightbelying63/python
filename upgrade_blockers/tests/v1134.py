@@ -6,8 +6,17 @@
          skip checking the OS, it's handled in platformDepsCheck()
 """
 
-if __name__ == "__main__":
-    import subprocess
+from mysqlVersion import *
+    
 
-def v1134:
-    mysql_version = subprocess.getstatusoutput('mysqladmin version|grep -i "server version"')[1].split("\t")[2]
+def v1134():
+    v1134_specific = []
+    mysql_version = mysqlVersion()
+
+    if mysql_version < 5.0:
+        v1134_specific.append("MySQL version " + mysql_version + "is less than 5.0")
+
+    return v1134_specific
+
+if __name__ == "__main__":
+    print(v1134())
