@@ -6,6 +6,15 @@ this one is not listed in documentation:
 
 FATAL: There are active transfers to this server. Updates will be blocked until those transfers complete or are aborted.
 
+[WARN] * FrontPage: RPM not installed, but /usr/local/frontpage/version5.0/bin/owsadm.exe exists -- will prevent upgrade to 11.46
+
+[INFO] * FTP Server: missing ftpserver setting in cpanel.config
+
+[WARN] * WHM Update Blocker found:
+	 \_ fatal,The mailserver value in /var/cpanel/cpanel.config is invalid. Valid values are dovecot or courier. You can change the value here: <A HREF="../scripts/mailserverconfig">Mailserver Configuration</A>
+	 \_ fatal,The ftpserver value in /var/cpanel/cpanel.config is invalid. Valid values are pure-ftpd or proftpd. You can change the value here: <A HREF="../scripts2/tweakftp">FTP Server Selection</A>
+	 \_ fatal,Upgrade is blocked because EXIMUP is set to 'never' in your configuration. To proceed, you can touch file '/var/cpanel/exim.unmanaged' and run the upgrade one more time. Please refer to our documentation at http://go.cpanel.net/1136UpgradeExim for more information
+
 ----
 
 Hello,
