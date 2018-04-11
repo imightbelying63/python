@@ -28,6 +28,13 @@ if os.geteuid() > 0:
     print("Script must run as root")
     sys.exit(1)
 
+"""BEGIN STANDARD CHECKS ROUTINES"""
+
+def licenseCheck():
+    if os.path.isfile("/usr/local/cpanel/cpanel.lisc"):
+        return True
+    else:
+        return False
 
 #platformDepsCheck()
 #cpanel_version = findCpanelVersion()
