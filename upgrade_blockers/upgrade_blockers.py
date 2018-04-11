@@ -79,6 +79,9 @@ def readOnlyFS():
     return True
 
 def rpmCheck():
+    if TESTING_MODE == 1:
+        #yum takes too long, im impatient
+        return True
     test_rpm = 'sl' #DO NOT USE IN PRODUCTION, sl IS IN EPEL
 
     if subprocess.getstatusoutput('yum -y --quiet install sl')[0] == 0:
