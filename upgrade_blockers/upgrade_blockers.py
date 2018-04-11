@@ -14,6 +14,19 @@
    1: non-root
    2: python or centos version too low
 
+
+
+  TESTS:
+    script specific:
+     +  platformDepsCheck(): checks that OS is centos 6 or greater,
+                           checks that python is 3
+
+    standard checks:
+     +  licenseCheck(): simply checks that a license file exists,
+                      an invalid lisc implies a larger problem than the scope of this script
+     + readOnlyFS(): various filesystems / dirs need to be writable
+     + rpmCheck(): verifies validity of rpmdb with a yum install/remove
+
   Author: khughes
   Version: 0.1
 """
@@ -27,6 +40,14 @@ import re, subprocess, platform
 if os.geteuid() > 0:
     print("Script must run as root")
     sys.exit(1)
+
+def platformDepsCheck():
+    if float(platform.linux_distribution()[1]) < 6:
+        print("CentOS 6 or above is required")
+        sys.exit(2)
+    if int(sys.version[:1]) < 3:
+        print("Python3 is required")
+        sys.exit(2)
 
 """BEGIN STANDARD CHECKS ROUTINES"""
 
