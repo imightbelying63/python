@@ -5,7 +5,14 @@
 from mysqlVersion import *
 
 def v1162():
-    pass
+    v1162_specific = []
+
+    #mysql check
+    mysql_version = mysqlVersion()
+    if mysql_version < 5.5:
+        v1162_specific.append("MySQL version " + mysql_version + " is less than 5.5")
+
+    return v1162_specific
 
 if __name__ == "__main__":
     print(v1162())
