@@ -18,7 +18,7 @@ def v1160():
     nstat = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
     server = nstat.communicate()[0].decode().rstrip()
     if server in web_servers:
-        if server == server[0]:
+        if server == web_servers[0]:
             #apache
             if os.path.exists('/etc/cpanel/ea4/is_ea4'):
                 #ea4 implies apachectl
@@ -27,11 +27,12 @@ def v1160():
                 #ea3 implies httpd
                 cmd = "httpd -V|head -1|cut -d/ -f2|awk '{print $1}'"
             httpd = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+            #python2 note: remove the decode() here:
             server_version = httpd.communicate()[0].decode().rstrip().split(".")
             if int(server_version[1]) < 4:
                 if int(server_version[2]) < 12:
                     v1160_specific.append("Apache is too old, SNI unsupported.  Upgrade to 2.2.12 or greater")
-        elif server == server[1]:
+        elif server == web_servers[1]:
             #lsws
             v1160_specific.append("Litespeed in use! Manually check that it supports SNI (4.1+)")
     else:
@@ -40,4 +41,4 @@ def v1160():
     return v1160_specific
 
 if __name__ == "__main__":
-    print(v1160())
+    v1160()
