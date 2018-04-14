@@ -1,8 +1,10 @@
 import subprocess
 
-def mysqlVersion():
-    version = subprocess.getstatusoutput('mysqladmin version|grep -i "server version"')[1].expandtabs().split()[2]
-    return float(''.join(version[:3]))
+def mysqlVersion2():
+    cmd = "mysqladmin version|grep 'Server version'"
+    mysqladmin = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    mysql_version = mysqladmin.communicate()[0].expandtabs().rstrip().split()[2]
+    return float(''.join(mysql_version[:3]))
 
 if __name__ == "__main__":
-    print(mysqlVersion())
+    print(mysqlVersion2())
