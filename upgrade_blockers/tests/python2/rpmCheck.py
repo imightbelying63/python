@@ -10,14 +10,13 @@ def rpmCheck():
     cmd1 = "yum -y --quiet install " + test_rpm
     cmd2 = "yum -y --quiet remove " + test_rpm
 
-    rpm1 = subprocess.Popen(cmd1, shell=True, stdout=subprocess.PIPE)
-    rpm2 = subprocess.Popen(cmd2, shell=True, stdout=subprocess.PIPE)
-
-    install = rpm1.communicate
-
-    if subprocess.getstatusoutput('yum -y --quiet install sl')[0] == 0:
-        if subprocess.getstatusoutput('yum -y --quiet remove sl')[0] == 0:
+    rpm1 = subprocess.Popen(cmd1, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if rpm1.communicate()[1] == '':
+        rpm2 = subprocess.Popen(cmd2, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if rpm2.subproces.communicate()[1] == '':
+            #rpm check successfull
             return True
+
 
     return False
 
