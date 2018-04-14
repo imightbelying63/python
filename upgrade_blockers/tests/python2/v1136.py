@@ -40,10 +40,8 @@ def v1136():
     for srv in services[:]:
         cmd = 'grep '+srv+' '+cpupdate_conf
         grep = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        if grep.communicate()[0]:
+        if not grep.communicate()[0]:
             services.remove(srv)
-        #if subprocess.getstatusoutput('grep '+srv+' '+cpupdate_conf)[0] > 0:
-            #services.remove(srv)
     #items left now are blocking
     for srv in services[:]:
         #if EXIMUP is one, check for /var/cpanel/exim.unmanaged
@@ -53,7 +51,8 @@ def v1136():
             else:
                 v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic or touch /var/cpanel/exim.unmanaged")
                 continue
-        v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic")
+        else:
+            v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic")
 
     return v1136_specific
 
