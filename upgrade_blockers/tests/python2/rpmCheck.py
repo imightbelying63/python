@@ -11,9 +11,9 @@ def rpmCheck():
     cmd2 = "yum -y --quiet remove " + test_rpm
 
     rpm1 = subprocess.Popen(cmd1, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if rpm1.communicate()[1] == '':
+    if not rpm1.communicate()[1]:
         rpm2 = subprocess.Popen(cmd2, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if rpm2.subproces.communicate()[1] == '':
+        if not rpm2.communicate()[1]:
             #rpm check successfull
             return True
 
