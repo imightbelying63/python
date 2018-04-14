@@ -38,8 +38,12 @@ def v1136():
     #items left in services[] are either never/manual or not present at all
     #we need to remove anything not present as this is assumed to auto
     for srv in services[:]:
-        if subprocess.getstatusoutput('grep '+srv+' '+cpupdate_conf)[0] > 0:
+        cmd = 'grep '+srv+' '+cpupdate_conf
+        grep = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        if grep.communicate()[0]:
             services.remove(srv)
+        #if subprocess.getstatusoutput('grep '+srv+' '+cpupdate_conf)[0] > 0:
+            #services.remove(srv)
     #items left now are blocking
     for srv in services[:]:
         #if EXIMUP is one, check for /var/cpanel/exim.unmanaged
