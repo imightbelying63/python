@@ -49,7 +49,8 @@ def v1136():
             else:
                 v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic or touch /var/cpanel/exim.unmanaged")
                 continue
-        v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic")
+        else:
+            v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic")
 
     return v1136_specific
 
