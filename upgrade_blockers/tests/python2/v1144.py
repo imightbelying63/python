@@ -8,7 +8,9 @@ def v1144():
     v1144_specific = []
 
     #test for whmxfer
-    if subprocess.getstatusoutput('mysql -Bse "show databases"|grep whmxfer')[0] == 0:
+    cmd = "myslshow | grep whmxfer"
+    mysqladmin = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if not mysqladmin.communicate()[0] == '':
         v1144_specific.append("The whmxfer must be deleted")
 
     return v1144_specific
