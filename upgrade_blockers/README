@@ -1,3 +1,5 @@
+++fixed in a bug in tests/python2/v1136.py tht needs to be ported to main verision+++
+
 script to check for and report upgrade blockers on cPanel
 
 https://documentation.cpanel.net/display/70Docs/Upgrade+Blockers
