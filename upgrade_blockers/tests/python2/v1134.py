@@ -14,7 +14,7 @@ def v1134():
     mysql_version = mysqlVersion()
 
     if mysql_version < 5.0:
-        v1134_specific.append("MySQL version " + mysql_version + "is less than 5.0")
+        v1134_specific.append("MySQL version " + str(mysql_version) + "is less than 5.0")
 
     return v1134_specific
 
