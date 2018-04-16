@@ -41,4 +41,4 @@ def v1160():
     return v1160_specific
 
 if __name__ == "__main__":
-    v1160()
+    print(v1160())
