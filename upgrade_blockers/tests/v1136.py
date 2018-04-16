@@ -13,7 +13,7 @@
      * python
    + if EXIMUP is set to never, /var/cpanel/exim.unmanaged must exist
 """
-TESTING = 1
+TESTING = 0
 
 import os,subprocess
 
