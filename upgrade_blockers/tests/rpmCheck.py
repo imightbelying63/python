@@ -6,7 +6,8 @@ if __name__ == "__main__":
     import subprocess
 
 def rpmCheck():
-    test_rpm = 'sl' #DO NOT USE IN PRODUCTION, sl IS IN EPEL
+    #test_rpm = 'sl' #DO NOT USE IN PRODUCTION, sl IS IN EPEL
+    test_rpm = 'test-package2'
 
     if subprocess.getstatusoutput('yum -y --quiet install sl')[0] == 0:
         if subprocess.getstatusoutput('yum -y --quiet remove sl')[0] == 0:
