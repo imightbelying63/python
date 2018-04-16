@@ -7,6 +7,7 @@ if __name__ == "__main__":
 
 def rpmCheck():
     #test_rpm = 'sl' #DO NOT USE IN PRODUCTION, sl IS IN EPEL
+    #might be wise to write and deploy a sample RPM of my own
     test_rpm = 'test-package2'
 
     if subprocess.getstatusoutput('yum -y --quiet install sl')[0] == 0:
