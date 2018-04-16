@@ -16,10 +16,11 @@ def v1146():
 
     #RPM target
     rpm_versions_file = '/var/cpanel/rpm.versions.d/local.versions'
-    with open(rpm_versions_file) as file:
-        for line in file.readlines():
-            if re.search('cpanel-php53:\s+(installed)', line):
-                v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + """.  Remove it with:
+    if os.path.exists(rpm_versions_file):
+        with open(rpm_versions_file) as file:
+            for line in file.readlines():
+                if re.search('cpanel-php53:\s+(installed)', line):
+                    v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + """.  Remove it with:
   /scripts/update_local_rpm_versions --del target_settings.cpanel-php53
   /scripts/check_cpanel_rpms --fix""")
                 #v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + '.  Remove it with /scripts/update_local_rpm_versions --del target_settings.cpanel-php53 and then /scripts/check_cpanel_rpms --fix')
