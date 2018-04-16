@@ -6,6 +6,7 @@ import subprocess
 
 def rpmCheck():
     #test_rpm = 'sl' #DO NOT USE IN PRODUCTION, sl IS IN EPEL 
+    #might be wise to write and deploy my own sample RPM
     test_rpm = 'test-package2'
 
     cmd1 = "yum -y --quiet install " + test_rpm
