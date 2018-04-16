@@ -16,7 +16,7 @@ def v1146():
 
     #RPM target
     rpm_versions_file = '/var/cpanel/rpm.versions.d/local.versions'
-    if os.path.exsts(rpm_versions_file):
+    if os.path.exists(rpm_versions_file):
         with open(rpm_versions_file) as file:
             for line in file.readlines():
                 if re.search('cpanel-php53:\s+(installed)', line):
