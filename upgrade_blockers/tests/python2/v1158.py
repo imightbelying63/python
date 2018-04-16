@@ -21,10 +21,11 @@ def v1158():
 
     #RPM target
     rpm_versions_file = '/var/cpanel/rpm.versions.d/local.versions'
-    with open(rpm_versions_file) as file:
-        for line in file.readlines():
-            if re.search('perl514:\s+(installed|unmanaged)', line):
-                v1158_specific.append('The perl514 RPM target is set to installed or unmanaged in ' + rpm_versions_file + """.  Remove it with:
+    if os.path.exists(rpm_versions_file):
+        with open(rpm_versions_file) as file:
+            for line in file.readlines():
+                if re.search('perl514:\s+(installed|unmanaged)', line):
+                    v1158_specific.append('The perl514 RPM target is set to installed or unmanaged in ' + rpm_versions_file + """.  Remove it with:
   /scripts/update_local_rpm_versions --del target_settings.perl514
   /scripts/check_cpanel_rpms --fix
 
