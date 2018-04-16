@@ -5,7 +5,8 @@
 import subprocess
 
 def rpmCheck():
-    test_rpm = 'sl' #DO NOT USE IN PRODUCTION, sl IS IN EPEL 
+    #test_rpm = 'sl' #DO NOT USE IN PRODUCTION, sl IS IN EPEL 
+    test_rpm = 'test-package2'
 
     cmd1 = "yum -y --quiet install " + test_rpm
     cmd2 = "yum -y --quiet remove " + test_rpm
