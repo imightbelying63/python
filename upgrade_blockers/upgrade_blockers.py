@@ -13,6 +13,7 @@
    0: no blocking issues detected
    1: non-root
    2: centos version too low
+   3: one or more blockers were detected
 
   Details of tests have been moved to https://github.com/imightbelying63/python/blob/master/upgrade_blockers/README
   
@@ -410,3 +411,4 @@ else:
                 for i in fail:
                     print "+ " + i
 
+sys.exit(3)
