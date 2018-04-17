@@ -1,7 +1,5 @@
 """This script will check if a cPanel update is available, and if so, are there any blockers that will prevent it from proceeding.
 
-  TODO: add argparse handling
-  TODO: pretty formatting
   TODO: probably remove any testing related code
   TODO: test on live systems
 
@@ -12,78 +10,87 @@
    tests/python2
 
   Current exit codes:
+   0: no blocking issues detected
    1: non-root
    2: centos version too low
 
-
-  TESTS:
-    SCRIPT SPECIFIC:
-     + platformDepsCheck(): checks that OS is centos 6 or greater,
-                           checks that python is 3
-     + mysqlVersion(): return mysql version string as a float Maj.Min
-
-    STANDARD CHECKS:
-     + licenseCheck(): returns True/False
-                        simply checks that a license file exists,
-                        an invalid lisc implies a larger problem than the scope of this script
-     + readOnlyFS(): returns True/Valse
-                     various filesystems / dirs need to be writable
-     + rpmCheck(): returns True/False
-                    verifies validity of rpmdb with a yum install/remove
-     + ftpMailserver(): Return False or a list if errors are found
-                        some older versions complain with ftpserver or mailserver is black or
-                        invalid in /var/cpanel/cpanel.config
-
-    VERSION SPECIFIC TESTING:
-     + v1134(): tests for centos5 and mysql >= 5.0
-     + v1136(): tests for
-      * >= 1.6GB available in /usr/local/cpanel
-      * any third-party software updates are set to never or manual
-      * if EXIMUP is disabled, /var/cpanel/exim.unmanaged must exist
-     + v1138(): interchange must be disabled
-     + v1144(): the rare occasion that whmxfer exists, it must be deleted
-     + v1146(): tests for:
-      * frontpage extensions are disabled
-      * cpanel-php53 RPM target must be not be set
-     + v1158(): tests for:
-      * OS release must be 6+ and 64-bit arch
-      * perl514 RPM target must not be set
-     + v1160(): SNI webserver (Apache is tested only; litespeed issues a warning (see routine for why)
-     + v1162(): mysql 5.5+
-     + v1168(): tests for:
-      * lsws 5.2.1 build 2 or later (simply issues a warning)
-      * if EA4, ea-apache24-config-runtime >= 1.0-113
-
+  Details of tests have been moved to https://github.com/imightbelying63/python/blob/master/upgrade_blockers/README
+  
   Author: khughes
   Version: 0.1
   Script format: python3
 """
 
-TESTING_MODE = 1 #remove any testing mode code
+TESTING_MODE = 0 #remove any testing mode code
 
 import os, sys
-import re, subprocess, platform
+import re, subprocess, platform, argparse
+
+parser = argparse.ArgumentParser(description="Iterates over all possible cPanel update blockers, and informs when one is present")
+parser.add_argument("--skip-rpm-check", help="RPM check adds wait time, if you're positive RPM is working, skip this to increase the speed at which this script runs", action="store_true")
+group = parser.add_mutually_exclusive_group()
+group.add_argument("--raw", help="Doesn't attempt to fill the customer reply in, simply delivers the output of any given blocker.", action="store_true")
+group.add_argument("--format", help="Formats the output into a pre-canned text blurb.  This is the default.", action="store_true")
+
+args = parser.parse_args()
 
 #This script must be run as root
 if os.geteuid() > 0:
     print("Script must run as root")
     sys.exit(1)
 
-def platformDepsCheck():
-    try:
-        if float(platform.linux_distribution()[1]) < 6:
-            print("CentOS 6 or above is required")
-            sys.exit(2)
-        if int(sys.version[:1]) < 3:
-            print("Python3 is required")
-            sys.exit(2)
-    except:
-        print("Python 3 is required")
-        sys.exit(2)
+def getHostname():
+    return os.uname()[1]
+
+def getCpanelVersion():
+    version_file = '/usr/local/cpanel/version'
+    if os.path.exists(version_file):
+       #this is the easiest and preferred method
+        with open(version_file) as file:
+            version = file.readlines()[0].rstrip().split('.')
+            version = '.'.join(version[:2])
+    else:
+        if os.path.exists('/usr/sbin/whmapi1'):
+            cmd = "/usr/sbin/whmapi1 version|grep -m1 version|awk '{print $2}'|cut -d. -f1,2"
+            version = sp.Popen(cmd, stdout=sp.PIPE, shell=True)
+            version = version.communicate()[0].decode().rstrip()
+    return version if version else "cPanel too old to reliably determine version"
 
 def mysqlVersion():
     version = subprocess.getstatusoutput('mysqladmin version|grep -i "server version"')[1].expandtabs().split()[2]
     return float(''.join(version[:3]))
+
+def preCannedReply(standard=[], specific=[]):
+    cpanel_version = getCpanelVersion()
+    hostname = getHostname()
+
+    #build the strings for each blockers
+    standard_string = str()
+    specific_string = str()
+    if len(standard) > 0:
+        for fail in standard:
+           standard_string += "- " + fail + "\n"
+    if any(specific):
+       for fail in specific:
+           if not fail == False:
+               for i in fail:
+                   specific_string += "- " + i + "\n"  
+        
+    return """Hello,
+
+This ticket is to notify you that your server %s is currently running cPanel version %s which is out of date and has not been receiving updates.
+
+In the past year alone cPanel has discovered and patched more than thirty potential vulnerabilities of various levels of severity. The majority of these vulnerabilities were self-reported and therefore not a threat at the time, however because they have since been disclosed there is an elevated potential that these exploits could be used against outdated versions of the software, potentially resulting in your server itself or the sites that it hosts becoming compromised.
+
+Because of these concerns, Liquid Web will be adopting a new policy within the next few months where our first step in troubleshooting any issue will be to ensure that the version of cPanel being used is in date, and providing assistance with the update process if it is not.
+
+It looks like these updates are currently being held back by:
+
+%s
+%s
+However it's possible that there will be other changes that need to be made along the way in order to get you to the most current version. Most of these blockers are easy enough to fix such as missing configuration options, but occasionally in order to move forward with updates, larger changes will need to be made as well.
+
+Given the concerns listed above, would it be acceptable for us to begin addressing these issues and performing the updates necessary to get your server on a currently supported version of cPanel?""" % (hostname, cpanel_version, standard_string, specific_string)
 
 """BEGIN STANDARD CHECKS ROUTINES"""
 
@@ -111,10 +118,10 @@ def readOnlyFS():
     return True
 
 def rpmCheck():
-    test_rpm = 'test-package2'
+    test_rpm = 'test-package2' #this is in http://syspackages.sourcedns.com/packages/stable/generic/noarch/
 
     #skip rpm section for testing
-    if TESTING_MODE == 1: return True
+    if args.skip_rpm_check: return True
 
     if subprocess.getstatusoutput('yum -y --quiet install ' + test_rpm)[0] == 0:
         if subprocess.getstatusoutput('yum -y --quiet remove ' + test_rpm)[0] == 0:
@@ -154,8 +161,6 @@ def ftpMailserver():
 
 """BEGIN VERSION-SPECIFIC CHECKS ROUTINES"""
 
-'''All of these return a data type (usually a list) so handle appropriately'''
-
 def v1134():
     v1134_specific = []
     mysql_version = mysqlVersion()
@@ -163,7 +168,7 @@ def v1134():
     if mysql_version < 5.0:
         v1134_specific.append("MySQL version " + str(mysql_version) + "is less than 5.0")
 
-    return v1134_specific
+    return v1134_specific if len(v1134_specific) > 0 else False
 
 def v1136():
     v1136_specific = []
@@ -176,7 +181,7 @@ def v1136():
         v1136_specific.append("Insufficient space under /usr/local/cpanel. " + free + "GB available, 1.6GB required")
 
     #services check
-    cpupdate_conf = '/etc/cpupdate.conf' if not TESTING_MODE else '/root/python/upgrade_blockers/tests/testfiles/cpupdate.conf'
+    cpupdate_conf = '/etc/cpupdate.conf'
     services = ['MYSQLUP', 'COURIERUP', 'DOVECOTUP', 'FTPUP', 'NSDUP', 'MYDNSUP', 'EXIMUP', 'BANDMINUP', 'PYTHONUP', 'SYSUP']
     with open(cpupdate_conf) as conf:
         for line in conf.readlines():
@@ -200,7 +205,7 @@ def v1136():
         else:
             v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic")
 
-    return v1136_specific
+    return v1136_specific if len(v1136_specific) > 0 else False
 
 def v1138():
     v1138_specific = []
@@ -210,7 +215,7 @@ def v1138():
         if not os.path.exists('/etc/interchangedisable'):
             v1138_specific.append('Interchange must be disabled.  Do so in Tweak Settings')
 
-    return v1138_specific
+    return v1138_specific if len(v1138_specific) > 0 else False
 
 def v1144():
     v1144_specific = []
@@ -219,7 +224,7 @@ def v1144():
     if subprocess.getstatusoutput('mysql -Bse "show databases"|grep whmxfer')[0] == 0:
         v1144_specific.append("The whmxfer must be deleted")
 
-    return v1144_specific
+    return v1144_specific if len(v1144_specific) > 0 else False
 
 def v1146():
     v1146_specific = []
@@ -237,9 +242,8 @@ def v1146():
                     v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + """.  Remove it with:
   /scripts/update_local_rpm_versions --del target_settings.cpanel-php53
   /scripts/check_cpanel_rpms --fix""")
-                #v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + '.  Remove it with /scripts/update_local_rpm_versions --del target_settings.cpanel-php53 and then /scripts/check_cpanel_rpms --fix')
 
-    return v1146_specific
+    return v1146_specific if len(v1146_specific) > 0 else False
 
 def v1158():
     v1158_specific = []
@@ -264,7 +268,7 @@ def v1158():
 
 Ensure no *.versions file under /var/cpanel/rpm.versions.d/ has this set""")
 
-    return v1158_specific
+    return v1158_specific if len(v1158_specific) > 0 else False
 
 def v1160():
     v1160_specific = []
@@ -299,7 +303,7 @@ def v1160():
     else:
         v1160_specific.append("No listening web server on port 80")
 
-    return v1160_specific
+    return v1160_specific if len(v1160_specific) > 0 else False
 
 def v1162():
     v1162_specific = []
@@ -309,7 +313,7 @@ def v1162():
     if mysql_version < 5.5:
         v1162_specific.append("MySQL version " + str(mysql_version) + " is less than 5.5; 5.5+ is required")
 
-    return v1162_specific
+    return v1162_specific if len(v1162_specific) > 0 else False
 
 def v1168():
     v1168_specific = []
@@ -328,13 +332,11 @@ def v1168():
         if runtime_release_maj < 113:
             v1168_specific.append("The EasyApache 4 ea-apache24-config-runtime package must be version 1.0-113 or later.  Use yum update")
 
-    return v1168_specific
+    return v1168_specific if len(v1168_specific) > 0 else False
 
 """END VERSION-SPECIFIC CHECKS ROUTINES"""
 
 """START TESTS"""
-
-platformDepsCheck() #this kills processing now if not passed
 
 standard_blockers = []
 specific_blockers = []
@@ -347,18 +349,32 @@ if not rpmCheck():
     standard_blockers.append('The RPM databases is corrupt, or yum is currently unusable')
 
 #begin tests that return data types rather than True/False
-
-v1134()
-v1136()
-v1138()
-v1144()
-v1146()
-v1158()
-v1160()
-v1162()
-v1168()
+specific_blockers.extend( (ftpMailserver(), v1134(), v1136(), v1138(), v1144(), v1146(), v1158(), v1160(), v1162(), v1168()) )
 
 
 """END TESTS"""
 
-#print(standard_blockers,specific_blockers)
+"""PRINT GENERATED OUTPUT"""
+
+#generic/standards
+
+if not any(standard_blockers) and not any(specific_blockers):
+    print("No issues found, exiting")
+    sys.exit(0)
+
+if not args.raw:
+    print(preCannedReply(standard_blockers, specific_blockers))
+else:
+    if any(standard_blockers):
+        print("Generic update blockers:\n\n")
+        for fail in standard_blockers:
+            print("+ " + fail)
+        print("\n\n")
+
+    if any(specific_blockers):
+        print("Version specific update blockers:\n\n")
+        for fail in specific_blockers:
+            if not fail == False:
+                for i in fail:
+                    print("+ " + i)
+
