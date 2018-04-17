@@ -13,12 +13,12 @@
 
 
   TESTS:
-    script specific:
+    SCRIPT SPECIFIC:
      +  platformDepsCheck(): checks that OS is centos 6 or greater,
                            checks that python is 3
      + mysqlVersion(): return mysql version string as a float Maj.Min
 
-    standard checks:
+    STANDARD CHECKS:
      +  licenseCheck(): returns True/False
                          simply checks that a license file exists,
                          an invalid lisc implies a larger problem than the scope of this script
@@ -29,6 +29,26 @@
      + ftpMailserver(): Return False or a list if errors are found
                         some older versions complain with ftpserver or mailserver is black or
                         invalid in /var/cpanel/cpanel.config
+
+    VERSION SPECIFIC TESTING:
+     + v1134(): tests for centos5 and mysql >= 5.0
+     + v1136(): tests for
+      * >= 1.6GB available in /usr/local/cpanel
+      * any third-party software updates are set to never or manual
+      * if EXIMUP is disabled, /var/cpanel/exim.unmanaged must exist
+     + v1138(): interchange must be disabled
+     + v1144(): the rare occasion that whmxfer exists, it must be deleted
+     + v1146(): tests for:
+      * frontpage extensions are disabled
+      * cpanel-php53 RPM target must be not be set
+     + v1158(): tests for:
+      * OS release must be 6+ and 64-bit arch
+      * perl514 RPM target must not be set
+     + v1160(): SNI webserver (Apache is tested only; litespeed issues a warning (see routine for why)
+     + v1162(): mysql 5.5+
+     + v1168(): tests for:
+      * lsws 5.2.1 build 2 or later (simply issues a warning)
+      * if EA4, ea-apache24-config-runtime >= 1.0-113
 
   Author: khughes
   Version: 0.1
