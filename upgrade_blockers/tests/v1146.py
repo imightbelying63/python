@@ -23,9 +23,8 @@ def v1146():
                     v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + """.  Remove it with:
   /scripts/update_local_rpm_versions --del target_settings.cpanel-php53
   /scripts/check_cpanel_rpms --fix""")
-                #v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + '.  Remove it with /scripts/update_local_rpm_versions --del target_settings.cpanel-php53 and then /scripts/check_cpanel_rpms --fix')
 
-    return v1146_specific
+    return v1146_specific if len(v1146_specific) > 0 else False
 
 if __name__ == "__main__":
     print(v1146())

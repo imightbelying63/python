@@ -31,7 +31,7 @@ def v1158():
 
 Ensure no *.versions file under /var/cpanel/rpm.versions.d/ has this set""")
 
-    return v1158_specific
+    return v1158_specific if len(v1158_specific) > 0 else False
 
 if __name__ == "__main__":
     print(v1158())

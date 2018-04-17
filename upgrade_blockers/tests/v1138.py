@@ -15,7 +15,7 @@ def v1138():
         if not os.path.exists('/etc/interchangedisable'):
             v1138_specific.append('Interchange must be disabled.  Do so in Tweak Settings')
 
-    return v1138_specific
+    return v1138_specific if len(v1138_specific) > 0 else False
 
 if __name__ == "__main__":
     print(v1138())

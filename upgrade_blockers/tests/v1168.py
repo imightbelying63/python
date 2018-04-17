@@ -22,7 +22,7 @@ def v1168():
         if runtime_release_maj < 113:
             v1168_specific.append("The EasyApache 4 ea-apache24-config-runtime package must be version 1.0-113 or later.  Use yum update")
 
-    return v1168_specific
+    return v1168_specific if len(v1168_specific) > 0 else False
 
 if __name__ == "__main__":
     print(v1168())

@@ -12,7 +12,7 @@ def v1162():
     if mysql_version < 5.5:
         v1162_specific.append("MySQL version " + str(mysql_version) + " is less than 5.5; 5.5+ is required")
 
-    return v1162_specific
+    return v1162_specific if len(v1162_specific) > 0 else False
 
 if __name__ == "__main__":
     print(v1162())

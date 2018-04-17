@@ -13,7 +13,7 @@
      * python
    + if EXIMUP is set to never, /var/cpanel/exim.unmanaged must exist
 """
-TESTING = 0
+TESTING = 1
 
 import os,subprocess
 
@@ -52,7 +52,7 @@ def v1136():
         else:
             v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic")
 
-    return v1136_specific
+    return v1136_specific if len(v1136_specific) > 0 else False
 
 if __name__ == "__main__":
     print(v1136())

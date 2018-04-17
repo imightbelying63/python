@@ -38,7 +38,7 @@ def v1160():
     else:
         v1160_specific.append("No listening web server on port 80")
 
-    return v1160_specific
+    return v1160_specific if len(v1160_specific) > 0 else False
 
 if __name__ == "__main__":
     print(v1160())
