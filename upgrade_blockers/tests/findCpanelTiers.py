@@ -1,5 +1,4 @@
-if __name__ == "__main__":
-    import subprocess
+import subprocess
 
 def findCpanelTiers():
     proc = subprocess.run(['curl', 'http://httpupdate.cpanel.net/cpanelsync/TIERS', '-s'], stdout=subprocess.PIPE)
