@@ -10,6 +10,7 @@
    tests/python2
 
   Current exit codes:
+   0: no blocking issues detected
    1: non-root
    2: centos version too low
 
@@ -370,6 +371,11 @@ specific_blockers.extend( (ftpMailserver(), v1134(), v1136(), v1138(), v1144(), 
 """PRINT GENERATED OUTPUT"""
 
 #generic/standards
+
+if not any(standard_blockers) and not any(specific_blockers):
+    print("No issues found, exiting")
+    sys.exit(0)
+
 if not args.raw:
     print(preCannedReply(standard_blockers, specific_blockers))
 else:
