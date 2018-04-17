@@ -18,7 +18,7 @@
   
   Author: khughes
   Version: 0.1
-  Script format: python3
+  Script format: python2
 """
 
 TESTING_MODE = 0 #remove any testing mode code
@@ -36,7 +36,7 @@ args = parser.parse_args()
 
 #This script must be run as root
 if os.geteuid() > 0:
-    print("Script must run as root")
+    print "Script must run as root"
     sys.exit(1)
 
 def getHostname():
@@ -371,22 +371,22 @@ specific_blockers.extend( (ftpMailserver(), v1134(), v1136(), v1138(), v1144(), 
 #generic/standards
 
 if not any(standard_blockers) and not any(specific_blockers):
-    print("No issues found, exiting")
+    print "No issues found, exiting"
     sys.exit(0)
 
 if not args.raw:
-    print(preCannedReply(standard_blockers, specific_blockers))
+    print preCannedReply(standard_blockers, specific_blockers)
 else:
     if any(standard_blockers):
-        print("Generic update blockers:\n\n")
+        print "Generic update blockers:\n\n"
         for fail in standard_blockers:
-            print("+ " + fail)
-        print("\n\n")
+            print "+ " + fail
+        print "\n\n"
 
     if any(specific_blockers):
-        print("Version specific update blockers:\n\n")
+        print "Version specific update blockers:\n\n"
         for fail in specific_blockers:
             if not fail == False:
                 for i in fail:
-                    print("+ " + i)
+                    print "+ " + i
 
