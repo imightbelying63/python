@@ -13,7 +13,7 @@
      * python
    + if EXIMUP is set to never, /var/cpanel/exim.unmanaged must exist
 """
-TESTING = 1
+TESTING_mode = 1
 
 import os,subprocess
 
@@ -28,7 +28,7 @@ def v1136():
         v1136_specific.append("Insufficient space under /usr/local/cpanel. " + free + "GB available, 1.6GB required")
 
     #services check
-    cpupdate_conf = '/etc/cpupdate.conf' if not TESTING else '/root/python/upgrade_blockers/tests/testfiles/cpupdate.conf'
+    cpupdate_conf = '/etc/cpupdate.conf' if not TESTING_MODE else '/root/python/upgrade_blockers/tests/testfiles/cpupdate.conf'
     services = ['MYSQLUP', 'COURIERUP', 'DOVECOTUP', 'FTPUP', 'NSDUP', 'MYDNSUP', 'EXIMUP', 'BANDMINUP', 'PYTHONUP', 'SYSUP']
     with open(cpupdate_conf) as conf:
         for line in conf.readlines():
