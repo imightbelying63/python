@@ -111,8 +111,6 @@ def readOnlyFS():
     return True
 
 def rpmCheck():
-    #built a test rpm for myself
-    #test_rpm = 'http://45.55.22.33:8063/kh-upgrade_blockers-test-1.0-1.noarch.rpm'
     test_rpm = 'test-package2'
 
     #skip rpm section for testing
