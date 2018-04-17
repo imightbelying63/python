@@ -1,7 +1,5 @@
 """This script will check if a cPanel update is available, and if so, are there any blockers that will prevent it from proceeding.
 
-  TODO: add argparse handling
-  TODO: pretty formatting
   TODO: probably remove any testing related code
   TODO: test on live systems
 
@@ -18,10 +16,12 @@
 
   TESTS:
     SCRIPT SPECIFIC:
+     + def getHostname(): returns current hostname
      + getCpanelVersion(): returns current cPanel version
      + platformDepsCheck(): checks that OS is centos 6 or greater,
                            checks that python is 3
      + mysqlVersion(): return mysql version string as a float Maj.Min
+     + preCannedReply(): returns a pretty-formatted pre-canned response to easily copypasta to customers
 
     STANDARD CHECKS:
      + licenseCheck(): returns True/False
@@ -63,12 +63,23 @@
 TESTING_MODE = 1 #remove any testing mode code
 
 import os, sys
-import re, subprocess, platform
+import re, subprocess, platform, argparse
+
+parser = argparse.ArgumentParser(description="Iterates over all possible cPanel update blockers, and informs when one is present")
+parser.add_argument("--skip-rpm-check", help="RPM check adds wait time, if you're positive RPM is working, skip this to increase the speed at which this script runs", action="store_true")
+group = parser.add_mutually_exclusive_group()
+group.add_argument("--raw", help="Doesn't attempt to fill the customer reply in, simply delivers the output of any given blocker.", action="store_true")
+group.add_argument("--format", help="Formats the output into a pre-canned text blurb.  This is the default.", action="store_true")
+
+args = parser.parse_args()
 
 #This script must be run as root
 if os.geteuid() > 0:
     print("Script must run as root")
     sys.exit(1)
+
+def getHostname():
+    return os.uname()[1]
 
 def getCpanelVersion():
     version_file = '/usr/local/cpanel/version'
@@ -99,6 +110,38 @@ def platformDepsCheck():
 def mysqlVersion():
     version = subprocess.getstatusoutput('mysqladmin version|grep -i "server version"')[1].expandtabs().split()[2]
     return float(''.join(version[:3]))
+
+def preCannedReply(standard=[], specific=[]):
+    cpanel_version = getCpanelVersion()
+    hostname = getHostname()
+
+    #build the strings for each blockers
+    standard_string = str()
+    specific_string = str()
+    if len(standard) > 0:
+        for fail in standard:
+           standard_string += "- " + fail + "\n"
+    if any(specific):
+       for fail in specific:
+           if not fail == False:
+               for i in fail:
+                   specific_string += "- " + i + "\n"  
+        
+    return """Hello,
+
+This ticket is to notify you that your server %s is currently running cPanel version %s which is out of date and has not been receiving updates.
+
+In the past year alone cPanel has discovered and patched more than thirty potential vulnerabilities of various levels of severity. The majority of these vulnerabilities were self-reported and therefore not a threat at the time, however because they have since been disclosed there is an elevated potential that these exploits could be used against outdated versions of the software, potentially resulting in your server itself or the sites that it hosts becoming compromised.
+
+Because of these concerns, Liquid Web will be adopting a new policy within the next few months where our first step in troubleshooting any issue will be to ensure that the version of cPanel being used is in date, and providing assistance with the update process if it is not.
+
+It looks like these updates are currently being held back by:
+
+%s
+%s
+However it's possible that there will be other changes that need to be made along the way in order to get you to the most current version. Most of these blockers are easy enough to fix such as missing configuration options, but occasionally in order to move forward with updates, larger changes will need to be made as well.
+
+Given the concerns listed above, would it be acceptable for us to begin addressing these issues and performing the updates necessary to get your server on a currently supported version of cPanel?""" % (hostname, cpanel_version, standard_string, specific_string)
 
 """BEGIN STANDARD CHECKS ROUTINES"""
 
@@ -368,17 +411,19 @@ specific_blockers.extend( (ftpMailserver(), v1134(), v1136(), v1138(), v1144(), 
 """PRINT GENERATED OUTPUT"""
 
 #generic/standards
+if not args.raw:
+    print(preCannedReply(standard_blockers, specific_blockers))
+else:
+    if any(standard_blockers):
+        print("Generic update blockers:\n\n")
+        for fail in standard_blockers:
+            print("+ " + fail)
+        print("\n\n")
 
-if any(standard_blockers):
-    print("Generic update blockers:\n\n")
-    for fail in standard_blockers:
-        print("+ " + fail)
-    print("\n\n")
-
-if any(specific_blockers):
-    print("Version specific update blockers:\n\n")
-    for fail in specific_blockers:
-        if not fail == False:
-            for i in fail:
-                print("+ " + i)
+    if any(specific_blockers):
+        print("Version specific update blockers:\n\n")
+        for fail in specific_blockers:
+            if not fail == False:
+                for i in fail:
+                    print("+ " + i)
 
