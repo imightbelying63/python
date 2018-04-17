@@ -79,10 +79,9 @@ def readOnlyFS():
     return True
 
 def rpmCheck():
-    if TESTING_MODE == 1:
-        #yum takes too long, im impatient
-        return True
-    test_rpm = 'sl' #DO NOT USE IN PRODUCTION, sl IS IN EPEL
+    #built a test rpm for myself
+    #test_rpm = 'http://45.55.22.33:8063/kh-upgrade_blockers-test-1.0-1.noarch.rpm'
+    test_rpm = 'test-package2'
 
     if subprocess.getstatusoutput('yum -y --quiet install sl')[0] == 0:
         if subprocess.getstatusoutput('yum -y --quiet remove sl')[0] == 0:
@@ -110,7 +109,12 @@ if not readOnlyFS():
 if not rpmCheck():
     standard_blockers.append('The RPM databases is corrupt, or yum is currently unusable')
 
+if len(standard_blockers) > 0:
+    print("One or more of the following standards upgrade blockers are in effect:")
+    for i in standard_blockers:
+        print("\n + " + i)
+
 
 """END TESTS"""
 
-print(standard_blockers,specific_blockers)
+#print(standard_blockers,specific_blockers)
