@@ -83,15 +83,220 @@ def rpmCheck():
     #test_rpm = 'http://45.55.22.33:8063/kh-upgrade_blockers-test-1.0-1.noarch.rpm'
     test_rpm = 'test-package2'
 
-    if subprocess.getstatusoutput('yum -y --quiet install sl')[0] == 0:
-        if subprocess.getstatusoutput('yum -y --quiet remove sl')[0] == 0:
+    #skip rpm section for testing
+    if TESTING_MODE == 1: return True
+
+    if subprocess.getstatusoutput('yum -y --quiet install ' + test_rpm)[0] == 0:
+        if subprocess.getstatusoutput('yum -y --quiet remove ' + test_rpm)[0] == 0:
             return True
 
     return False
 
+def ftpMailserver():
+    ftp_mailserver = []
+
+    conf_file = '/var/cpanel/cpanel.config'
+    ftp_regex = '(ftpserver=)\s*(pure\-ftpd|proftpd)$'
+    mail_regex = '(mailserver=)\s*(dovecot|courier)$'
+    ftp_is_set = False
+    mailserver_is_set = False
+    with open(conf_file) as conf:
+        for line in conf.readlines():
+            if re.search(ftp_regex, line):
+                #valid configs are pure-ftpd or proftpd
+                ftp_match = re.search(ftp_regex, line)
+                if ftp_match.groups()[1] == "pure-ftpd" or ftp_match.groups()[1] == "proftpd":
+                    ftp_is_set = True
+            if re.search(mail_regex, line):
+                mail_match = re.search(mail_regex, line)
+                #valid configs are dovecot or courier
+                if mail_match.groups()[1] == "dovecot" or mail_match.groups()[1] == "courier":
+                    mailserver_is_set = True
+
+    if not ftp_is_set:
+        ftp_mailserver.append("The ftpserver value in " + conf_file + " is invalid. Valid values are pure-ftpd or proftpd.")
+    if not mailserver_is_set:
+        ftp_mailserver.append("The mailserver value in " + conf_file + " is invalid. Valid values are dovecot or courier")
+
+    return ftp_mailserver if len(ftp_server) > 0 else False
+
 """END STANDARD CHECKS ROUTINES"""
 
 """BEGIN VERSION-SPECIFIC CHECKS ROUTINES"""
+
+def v1134():
+    v1134_specific = []
+    mysql_version = mysqlVersion()
+
+    if mysql_version < 5.0:
+        v1134_specific.append("MySQL version " + str(mysql_version) + "is less than 5.0")
+
+    return v1134_specific
+
+def v1136():
+    v1136_specific = []
+
+    #disk space
+
+    stat = os.statvfs('/usr/local/cpanel')
+    free = (stat.f_bfree*stat.f_bsize) / (1024**3) #converts to GB
+    if free < 1.6:
+        v1136_specific.append("Insufficient space under /usr/local/cpanel. " + free + "GB available, 1.6GB required")
+
+    #services check
+    cpupdate_conf = '/etc/cpupdate.conf' if not TESTING else '/root/python/upgrade_blockers/tests/testfiles/cpupdate.conf'
+    services = ['MYSQLUP', 'COURIERUP', 'DOVECOTUP', 'FTPUP', 'NSDUP', 'MYDNSUP', 'EXIMUP', 'BANDMINUP', 'PYTHONUP', 'SYSUP']
+    with open(cpupdate_conf) as conf:
+        for line in conf.readlines():
+            for srv in services[:]:
+                if srv+"=inherit" in line or srv+"=daily" in line:
+                    services.remove(srv)
+    #items left in services[] are either never/manual or not present at all
+    #we need to remove anything not present as this is assumed to auto
+    for srv in services[:]:
+        if subprocess.getstatusoutput('grep '+srv+' '+cpupdate_conf)[0] > 0:
+            services.remove(srv)
+    #items left now are blocking
+    for srv in services[:]:
+        #if EXIMUP is one, check for /var/cpanel/exim.unmanaged
+        if srv == "EXIMUP":
+            if os.path.exists('/var/cpanel/exim.unmanaged'):
+                services.remove(srv)
+            else:
+                v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic or touch /var/cpanel/exim.unmanaged")
+                continue
+        else:
+            v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic")
+
+    return v1136_specific
+
+def v1138():
+    v1138_specific = []
+
+    #check interchange
+    if os.path.exists('/usr/local/cpanel/bin/startinterchange') or os.path.exists('/etc/interchangeisevil'):
+        if not os.path.exists('/etc/interchangedisable'):
+            v1138_specific.append('Interchange must be disabled.  Do so in Tweak Settings')
+
+    return v1138_specific
+
+def v1144():
+    v1144_specific = []
+
+    #test for whmxfer
+    if subprocess.getstatusoutput('mysql -Bse "show databases"|grep whmxfer')[0] == 0:
+        v1144_specific.append("The whmxfer must be deleted")
+
+    return v1144_specific
+
+def v1146():
+    v1146_specific = []
+
+    #FP extensions
+    if os.path.exists('/usr/local/frontpage/version5.0/bin/owsadm.exe'):
+        v1146_specific.append("FrontPage extensions must be removed.  Use Home >> Front Page >> Uninstall FrontPage Extensions")
+
+    #RPM target
+    rpm_versions_file = '/var/cpanel/rpm.versions.d/local.versions'
+    if os.path.exists(rpm_versions_file):
+        with open(rpm_versions_file) as file:
+            for line in file.readlines():
+                if re.search('cpanel-php53:\s+(installed)', line):
+                    v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + """.  Remove it with:
+  /scripts/update_local_rpm_versions --del target_settings.cpanel-php53
+  /scripts/check_cpanel_rpms --fix""")
+                #v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + '.  Remove it with /scripts/update_local_rpm_versions --del target_settings.cpanel-php53 and then /scripts/check_cpanel_rpms --fix')
+
+    return v1146_specific
+
+def v1158():
+    v1158_specific = []
+
+    #OS and Arch
+    kernel = os.uname()[2]
+    release,arch = kernel.split(".")[-2:][0], kernel.split(".")[-2:][1]
+    if not release == "el6" and not release == "el7":
+        v1158_specific.append("CentOS 5 and below are no loner supported")
+    if not arch == "x86_64" and not sys.maxsize > (2**32):
+        v1158_specific.append("32-bit systems are no longer supported")
+
+    #RPM target
+    rpm_versions_file = '/var/cpanel/rpm.versions.d/local.versions'
+    if os.path.exists(rpm_versions_file):
+        with open(rpm_versions_file) as file:
+            for line in file.readlines():
+                if re.search('perl514:\s+(installed|unmanaged)', line):
+                    v1158_specific.append('The perl514 RPM target is set to installed or unmanaged in ' + rpm_versions_file + """.  Remove it with:
+  /scripts/update_local_rpm_versions --del target_settings.perl514
+  /scripts/check_cpanel_rpms --fix
+
+Ensure no *.versions file under /var/cpanel/rpm.versions.d/ has this set""")
+
+    return v1158_specific
+
+def v1160():
+    v1160_specific = []
+
+    #SNI check
+    #only test for apache, our lsws installs are all 5.0. customer-supplied lsws is not supported
+    #apache 2.2.12 implies SNI
+
+    #check if httpd or lshttpd
+    web_servers = ['httpd', 'lshttpd']
+    cmd = "netstat -tlpn|grep :80|head -1|awk '{print $7}'|cut -d/ -f2"
+    nstat = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+    server = nstat.communicate()[0].decode().rstrip()
+    if server in web_servers:
+        if server == web_servers[0]:
+            #apache
+            if os.path.exists('/etc/cpanel/ea4/is_ea4'):
+                #ea4 implies apachectl
+                cmd = "apachectl -V|head -1|cut -d/ -f2|awk '{print $1}'"
+            else:
+                #ea3 implies httpd
+                cmd = "httpd -V|head -1|cut -d/ -f2|awk '{print $1}'"
+            httpd = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+            #python2 note: remove the decode() here:
+            server_version = httpd.communicate()[0].decode().rstrip().split(".")
+            if int(server_version[1]) < 4:
+                if int(server_version[2]) < 12:
+                    v1160_specific.append("Apache is too old, SNI unsupported.  Upgrade to 2.2.12 or greater")
+        elif server == web_servers[1]:
+            #lsws
+            v1160_specific.append("Litespeed in use! Manually check that it supports SNI (4.1+)")
+    else:
+        v1160_specific.append("No listening web server on port 80")
+
+    return v1160_specific
+
+def v1162():
+    v1162_specific = []
+
+    #mysql check
+    mysql_version = mysqlVersion()
+    if mysql_version < 5.5:
+        v1162_specific.append("MySQL version " + str(mysql_version) + " is less than 5.5; 5.5+ is required")
+
+    return v1162_specific
+
+def v1168():
+    v1168_specific = []
+
+    #lsws check
+    if os.path.exists('/usr/local/lsws/'):
+        #only complain about it tho
+        v1168_specific.append("LiteSpeed is installed, ensure it is fully upgraded before updating cpanel")
+    
+    #rpm check
+    if os.path.exists('/etc/cpanel/ea4/is_ea4'):
+        cmd = "rpm -q ea-apache24-config-runtime"
+        rpm = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+        runtime_version = rpm.communicate()[0].decode().rstrip()
+        runtime_release_maj = int(runtime_version.split("-")[5].split('.')[0])
+        if runtime_release_maj < 113:
+            v1168_specific.append("The EasyApache 4 ea-apache24-config-runtime package must be version 1.0-113 or later.  Use yum update")
+
+    return v1168_specific
 
 """END VERSION-SPECIFIC CHECKS ROUTINES"""
 
@@ -109,10 +314,7 @@ if not readOnlyFS():
 if not rpmCheck():
     standard_blockers.append('The RPM databases is corrupt, or yum is currently unusable')
 
-if len(standard_blockers) > 0:
-    print("One or more of the following standards upgrade blockers are in effect:")
-    for i in standard_blockers:
-        print("\n + " + i)
+#begin tests that return data types rather than True/False
 
 
 """END TESTS"""
