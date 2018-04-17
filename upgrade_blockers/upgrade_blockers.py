@@ -122,13 +122,6 @@ def rpmCheck():
 
     return False
 
-
-"""END STANDARD CHECKS ROUTINES"""
-
-"""BEGIN VERSION-SPECIFIC CHECKS ROUTINES"""
-
-'''All of these return a data type (usually a list) so handle appropriately'''
-
 def ftpMailserver():
     ftp_mailserver = []
 
@@ -156,6 +149,12 @@ def ftpMailserver():
         ftp_mailserver.append("The mailserver value in " + conf_file + " is invalid. Valid values are dovecot or courier")
 
     return ftp_mailserver if len(ftp_mailserver) > 0 else False
+
+"""END STANDARD CHECKS ROUTINES"""
+
+"""BEGIN VERSION-SPECIFIC CHECKS ROUTINES"""
+
+'''All of these return a data type (usually a list) so handle appropriately'''
 
 def v1134():
     v1134_specific = []
