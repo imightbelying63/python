@@ -1,11 +1,20 @@
-script to check for and report upgrade blockers on cPanel
+This script will perform various tests on EOL versions of cPanel to determine, if possible, what specific update blockers are present, and report them.  There are versions for python2 and python3
+
++ upgrade_blockers.py (python2)
++ upgrade_blockers3.py (python3)
+
+Python3 version will fail to execute at all and issue exit status 2 if attempted to be run with python2
+Python2 version skips this check entirely
+
+The script will check for CentOS 5 or below, but it's assumed that no servers on the list are less than CentOS 6.  A CentOS 5 or below server will automatically imply an update blocker, and there's no reason to test further.
+
 
   TESTS:
     SCRIPT SPECIFIC:
      + getHostname(): returns current hostname
      + getCpanelVersion(): returns current cPanel version
      + platformDepsCheck(): checks that OS is centos 6 or greater,
-                           checks that python is 3
+                           checks that python is 3 (if applicable)
      + mysqlVersion(): return mysql version string as a float Maj.Min
      + preCannedReply(): returns a pretty-formatted pre-canned response to easily copypasta to customers
 
