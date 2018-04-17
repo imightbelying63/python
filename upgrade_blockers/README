@@ -1,32 +1,42 @@
-++fixed in a bug in tests/python2/v1136.py tht needs to be ported to main verision+++
-
 script to check for and report upgrade blockers on cPanel
 
-https://documentation.cpanel.net/display/70Docs/Upgrade+Blockers
+  TESTS:
+    SCRIPT SPECIFIC:
+     + def getHostname(): returns current hostname
+     + getCpanelVersion(): returns current cPanel version
+     + platformDepsCheck(): checks that OS is centos 6 or greater,
+                           checks that python is 3
+     + mysqlVersion(): return mysql version string as a float Maj.Min
+     + preCannedReply(): returns a pretty-formatted pre-canned response to easily copypasta to customers
 
-this one is not listed in documentation:
+    STANDARD CHECKS:
+     + licenseCheck(): returns True/False
+                        simply checks that a license file exists,
+                        an invalid lisc implies a larger problem than the scope of this script
+     + readOnlyFS(): returns True/Valse
+                     various filesystems / dirs need to be writable
+     + rpmCheck(): returns True/False
+                    verifies validity of rpmdb with a yum install/remove
+     + ftpMailserver(): Return False or a list if errors are found
+                        some older versions complain with ftpserver or mailserver is black or
+                        invalid in /var/cpanel/cpanel.config
 
-FATAL: There are active transfers to this server. Updates will be blocked until those transfers complete or are aborted.
-
-[WARN] * FrontPage: RPM not installed, but /usr/local/frontpage/version5.0/bin/owsadm.exe exists -- will prevent upgrade to 11.46
-
-[INFO] * FTP Server: missing ftpserver setting in cpanel.config
-
-[WARN] * WHM Update Blocker found:
-	 \_ fatal,The mailserver value in /var/cpanel/cpanel.config is invalid. Valid values are dovecot or courier. You can change the value here: <A HREF="../scripts/mailserverconfig">Mailserver Configuration</A>
-	 \_ fatal,The ftpserver value in /var/cpanel/cpanel.config is invalid. Valid values are pure-ftpd or proftpd. You can change the value here: <A HREF="../scripts2/tweakftp">FTP Server Selection</A>
-	 \_ fatal,Upgrade is blocked because EXIMUP is set to 'never' in your configuration. To proceed, you can touch file '/var/cpanel/exim.unmanaged' and run the upgrade one more time. Please refer to our documentation at http://go.cpanel.net/1136UpgradeExim for more information
-
-----
-
-Hello,
-
-This ticket is to notify you that your server ___________________ is currently running cPanel version _____ which is out of date and has not received security updates since _________________.
-
-In the past year alone cPanel has discovered and patched more than thirty potential vulnerabilities of various levels of severity. The majority of these vulnerabilities were self-reported and therefore not a threat at the time, however because they have since been disclosed there is an elevated potential that these exploits could be used against outdated versions of the software, potentially resulting in your server itself or the sites that it hosts becoming compromised.
-
-Because of these concerns, Liquid Web will be adopting a new policy within the next few months where our first step in troubleshooting any issue will be to ensure that the version of cPanel being used is in date, and providing assistance with the update process if it is not.
-
-It looks like these updates are currently being held back by _______________, however it's possible that there will be other changes that need to be made along the way in order to get you to the most current version. Most of these blockers are easy enough to fix such as missing configuration options, but occasionally in order to move forward with updates, larger changes will need to be made as well.
-
-Given the concerns listed above, would it be acceptable for us to begin addressing these issues and performing the updates necessary to get your server on a currently supported version of cPanel?
+    VERSION SPECIFIC TESTING:
+     + v1134(): tests for centos5 and mysql >= 5.0
+     + v1136(): tests for
+      * >= 1.6GB available in /usr/local/cpanel
+      * any third-party software updates are set to never or manual
+      * if EXIMUP is disabled, /var/cpanel/exim.unmanaged must exist
+     + v1138(): interchange must be disabled
+     + v1144(): the rare occasion that whmxfer exists, it must be deleted
+     + v1146(): tests for:
+      * frontpage extensions are disabled
+      * cpanel-php53 RPM target must be not be set
+     + v1158(): tests for:
+      * OS release must be 6+ and 64-bit arch
+      * perl514 RPM target must not be set
+     + v1160(): SNI webserver (Apache is tested only; litespeed issues a warning (see routine for why)
+     + v1162(): mysql 5.5+
+     + v1168(): tests for:
+      * lsws 5.2.1 build 2 or later (simply issues a warning)
+      * if EA4, ea-apache24-config-runtime >= 1.0-113
