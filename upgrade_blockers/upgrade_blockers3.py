@@ -18,7 +18,7 @@
   
   Author: khughes
   Version: 1.0
-  Script format: python2
+  Script format: python3
 """
 
 TESTING_MODE = 0 #remove any testing mode code
@@ -36,23 +36,21 @@ group.add_argument("--format", help="Formats the output into a pre-canned text b
 
 args = parser.parse_args()
 
+if args.version:
+    print(sys.argv[0] + " " + SCRIPT_VERSION)
+    sys.exit(0)
+
 #This script must be run as root
 if os.geteuid() > 0:
-    print "Script must run as root"
+    print("Script must run as root")
     sys.exit(1)
-
-if args.version:
-    print sys.argv[0] + " " + SCRIPT_VERSION
-    sys.exit(0)
 
 def getHostname():
     return os.uname()[1]
 
 def findCpanelTiers():
-    cmd = 'curl -s http://httpupdate.cpanel.net/cpanelsync/TIERS'
-    curl = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    data = curl.communicate()[0]
-    tiers_list = data.splitlines()[1:5]
+    proc = subprocess.run(['curl', 'http://httpupdate.cpanel.net/cpanelsync/TIERS', '-s'], stdout=subprocess.PIPE)
+    tiers_list = proc.stdout.decode().splitlines()[1:5]
 
     tiers = {}
     for t in tiers_list:
@@ -74,13 +72,21 @@ def getCpanelVersion():
             version = version.communicate()[0].decode().rstrip()
     return version if version else "cPanel too old to reliably determine version"
 
-def mysqlVersion():
-    cmd = "mysqladmin version|grep 'Server version'"
-    mysqladmin = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    mysql_version = mysqladmin.communicate()[0].expandtabs().rstrip().split()[2]
-    return float(''.join(mysql_version[:3]))
+def platformDepsCheck():
+    try:
+        if float(platform.linux_distribution()[1]) < 6:
+            print("CentOS 6 or above is required")
+            sys.exit(2)
+        if int(sys.version[:1]) < 3:
+            print("Python3 unavailable; use the python2 version")
+            sys.exit(2)
+    except:
+        print("Python3 unavailable; use the python2 version")
+        sys.exit(2)
 
-"""BEGIN STANDARD CHECKS ROUTINES"""
+def mysqlVersion():
+    version = subprocess.getstatusoutput('mysqladmin version|grep -i "server version"')[1].expandtabs().split()[2]
+    return float(''.join(version[:3]))
 
 def preCannedReply(standard=[], specific=[]):
     cpanel_version = getCpanelVersion()
@@ -98,11 +104,11 @@ def preCannedReply(standard=[], specific=[]):
        for fail in specific:
            if not fail == False:
                for i in fail:
-                   specific_string += "- " + i + "\n"
-
+                   specific_string += "- " + i + "\n"  
+        
     return """Hello,
 
-This ticket is to notify you that your server %s is currently running cPanel version %s which is out of date and has not been receiving updates.  The most recent Release version of cPanel is %s.
+This ticket is to notify you that your server {} is currently running cPanel version {} which is out of date and has not been receiving updates.  The most recent Release version of cPanel is {}.
 
 In the past year alone cPanel has discovered and patched more than thirty potential vulnerabilities of various levels of severity. The majority of these vulnerabilities were self-reported and therefore not a threat at the time, however because they have since been disclosed there is an elevated potential that these exploits could be used against outdated versions of the software, potentially resulting in your server itself or the sites that it hosts becoming compromised.
 
@@ -110,11 +116,13 @@ Because of these concerns, Liquid Web will be adopting a new policy within the n
 
 It looks like these updates are currently being held back by:
 
-%s
-%s
+{}
+{}
 However it's possible that there will be other changes that need to be made along the way in order to get you to the most current version. Most of these blockers are easy enough to fix such as missing configuration options, but occasionally in order to move forward with updates, larger changes will need to be made as well.
 
-Given the concerns listed above, would it be acceptable for us to begin addressing these issues and performing the updates necessary to get your server on a currently supported version of cPanel?""" % (hostname, cpanel_version, release_version, standard_string, specific_string)
+Given the concerns listed above, would it be acceptable for us to begin addressing these issues and performing the updates necessary to get your server on a currently supported version of cPanel?""".format(hostname, cpanel_version, release_version, standard_string, specific_string)
+
+"""BEGIN STANDARD CHECKS ROUTINES"""
 
 def licenseCheck():
     if os.path.isfile("/usr/local/cpanel/cpanel.lisc"):
@@ -140,19 +148,13 @@ def readOnlyFS():
     return True
 
 def rpmCheck():
-    test_rpm = 'test-package2'
+    test_rpm = 'test-package2' #this is in http://syspackages.sourcedns.com/packages/stable/generic/noarch/
 
     #skip rpm section for testing
     if args.skip_rpm_check: return True
 
-    cmd1 = "yum -y --quiet install " + test_rpm
-    cmd2 = "yum -y --quiet remove " + test_rpm
-
-    rpm1 = subprocess.Popen(cmd1, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if not rpm1.communicate()[1]:
-        rpm2 = subprocess.Popen(cmd2, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if not rpm2.communicate()[1]:
-            #rpm check successfull
+    if subprocess.getstatusoutput('yum -y --quiet install ' + test_rpm)[0] == 0:
+        if subprocess.getstatusoutput('yum -y --quiet remove ' + test_rpm)[0] == 0:
             return True
 
     return False
@@ -209,7 +211,7 @@ def v1136():
         v1136_specific.append("Insufficient space under /usr/local/cpanel. " + free + "GB available, 1.6GB required")
 
     #services check
-    cpupdate_conf = '/etc/cpupdate.conf' if not TESTING_MODE else '/root/python/upgrade_blockers/tests/testfiles/cpupdate.conf'
+    cpupdate_conf = '/etc/cpupdate.conf'
     services = ['MYSQLUP', 'COURIERUP', 'DOVECOTUP', 'FTPUP', 'NSDUP', 'MYDNSUP', 'EXIMUP', 'BANDMINUP', 'PYTHONUP', 'SYSUP']
     with open(cpupdate_conf) as conf:
         for line in conf.readlines():
@@ -219,9 +221,7 @@ def v1136():
     #items left in services[] are either never/manual or not present at all
     #we need to remove anything not present as this is assumed to auto
     for srv in services[:]:
-        cmd = 'grep '+srv+' '+cpupdate_conf
-        grep = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        if not grep.communicate()[0]:
+        if subprocess.getstatusoutput('grep '+srv+' '+cpupdate_conf)[0] > 0:
             services.remove(srv)
     #items left now are blocking
     for srv in services[:]:
@@ -251,9 +251,7 @@ def v1144():
     v1144_specific = []
 
     #test for whmxfer
-    cmd = "myslshow | grep whmxfer"
-    mysqladmin = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if not mysqladmin.communicate()[0] == '':
+    if subprocess.getstatusoutput('mysql -Bse "show databases"|grep whmxfer')[0] == 0:
         v1144_specific.append("The whmxfer must be deleted")
 
     return v1144_specific if len(v1144_specific) > 0 else False
@@ -354,7 +352,7 @@ def v1168():
     if os.path.exists('/usr/local/lsws/'):
         #only complain about it tho
         v1168_specific.append("LiteSpeed is installed, ensure it is fully upgraded before updating cpanel")
-
+    
     #rpm check
     if os.path.exists('/etc/cpanel/ea4/is_ea4'):
         cmd = "rpm -q ea-apache24-config-runtime"
@@ -369,6 +367,8 @@ def v1168():
 """END VERSION-SPECIFIC CHECKS ROUTINES"""
 
 """START TESTS"""
+
+platformDepsCheck() #this kills processing now if not passed
 
 standard_blockers = []
 specific_blockers = []
@@ -391,22 +391,22 @@ specific_blockers.extend( (ftpMailserver(), v1134(), v1136(), v1138(), v1144(), 
 #generic/standards
 
 if not any(standard_blockers) and not any(specific_blockers):
-    print "No issues found, exiting"
+    print("No issues found, exiting")
     sys.exit(0)
 
 if not args.raw:
-    print preCannedReply(standard_blockers, specific_blockers)
+    print(preCannedReply(standard_blockers, specific_blockers))
 else:
     if any(standard_blockers):
-        print "Generic update blockers:\n\n"
+        print("Generic update blockers:\n\n")
         for fail in standard_blockers:
-            print "+ " + fail
-        print "\n\n"
+            print("+ " + fail)
+        print("\n\n")
 
     if any(specific_blockers):
-        print "Version specific update blockers:\n\n"
+        print("Version specific update blockers:\n\n")
         for fail in specific_blockers:
             if not fail == False:
                 for i in fail:
-                    print "+ " + i
+                    print("+ " + i)
 
