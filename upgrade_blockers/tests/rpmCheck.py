@@ -7,7 +7,8 @@ if __name__ == "__main__":
 
 def rpmCheck():
     #test_rpm = 'sl' #DO NOT USE IN PRODUCTION, sl IS IN EPEL
-    #might be wise to write and deploy a sample RPM of my own
+    #built a test rpm for myself
+    #test_rpm = 'http://45.55.22.33:8063/kh-upgrade_blockers-test-1.0-1.noarch.rpm'
     test_rpm = 'test-package2'
 
     if subprocess.getstatusoutput('yum -y --quiet install sl')[0] == 0:
