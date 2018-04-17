@@ -2,7 +2,7 @@ script to check for and report upgrade blockers on cPanel
 
   TESTS:
     SCRIPT SPECIFIC:
-     + def getHostname(): returns current hostname
+     + getHostname(): returns current hostname
      + getCpanelVersion(): returns current cPanel version
      + platformDepsCheck(): checks that OS is centos 6 or greater,
                            checks that python is 3
