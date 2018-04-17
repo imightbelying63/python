@@ -17,17 +17,19 @@
   Details of tests have been moved to https://github.com/imightbelying63/python/blob/master/upgrade_blockers/README
   
   Author: khughes
-  Version: 0.1
+  Version: 1.0
   Script format: python2
 """
 
 TESTING_MODE = 0 #remove any testing mode code
+SCRIPT_VERSION = '1.0'
 
 import os, sys
 import re, subprocess, platform, argparse
 
 parser = argparse.ArgumentParser(description="Iterates over all possible cPanel update blockers, and informs when one is present")
 parser.add_argument("--skip-rpm-check", help="RPM check adds wait time, if you're positive RPM is working, skip this to increase the speed at which this script runs", action="store_true")
+parser.add_argument("-v", "--version", help="show version and exit", action="store_true")
 group = parser.add_mutually_exclusive_group()
 group.add_argument("--raw", help="Doesn't attempt to fill the customer reply in, simply delivers the output of any given blocker.", action="store_true")
 group.add_argument("--format", help="Formats the output into a pre-canned text blurb.  This is the default.", action="store_true")
@@ -38,6 +40,10 @@ args = parser.parse_args()
 if os.geteuid() > 0:
     print "Script must run as root"
     sys.exit(1)
+
+if args.version:
+    print sys.argv[0] + " " + SCRIPT_VERSION
+    sys.exit(0)
 
 def getHostname():
     return os.uname()[1]
