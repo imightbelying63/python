@@ -49,6 +49,12 @@ if args.version:
 def getHostname():
     return os.uname()[1]
 
+def platformDepsCheck():
+    el_version = os.uname()[2].split(".")[5]
+    if not el_version == "el6" and not el_version == "el7":
+        print("CentOS 6 or above is required")
+        sys.exit(2)
+    
 def findCpanelTiers():
     cmd = 'curl -s http://httpupdate.cpanel.net/cpanelsync/TIERS'
     curl = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -370,6 +376,8 @@ def v1168():
 """END VERSION-SPECIFIC CHECKS ROUTINES"""
 
 """START TESTS"""
+
+platformDepsCheck() # this will stop processing now if OS or python is incompatible
 
 standard_blockers = []
 specific_blockers = []
