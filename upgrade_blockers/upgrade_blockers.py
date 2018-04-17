@@ -112,6 +112,7 @@ def readOnlyFS():
 
 def rpmCheck():
     test_rpm = 'test-package2' #this is in http://syspackages.sourcedns.com/packages/stable/generic/noarch/
+    return False
 
     #skip rpm section for testing
     if TESTING_MODE == 1: return True
@@ -346,11 +347,24 @@ if not rpmCheck():
 #begin tests that return data types rather than True/False
 specific_blockers.extend( (ftpMailserver(), v1134(), v1136(), v1138(), v1144(), v1146(), v1158(), v1160(), v1162(), v1168()) )
 
-if any(specific_blockers):
-    for fail in specific_blockers:
-        print(fail)
-
 
 """END TESTS"""
+
+"""PRINT GENERATED OUTPUT"""
+
+#generic/standards
+
+if any(standard_blockers):
+    print("Generic update blockers:\n\n")
+    for fail in standard_blockers:
+        print("+ " + fail)
+    print("\n\n")
+
+if any(specific_blockers):
+    print("Version specific update blockers:\n\n")
+    for fail in specific_blockers:
+        if not fail == False:
+            for i in fail:
+                print("+ " + i)
 
 #print(standard_blockers,specific_blockers)
