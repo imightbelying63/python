@@ -189,7 +189,7 @@ def v1136():
         v1136_specific.append("Insufficient space under /usr/local/cpanel. " + free + "GB available, 1.6GB required")
 
     #services check
-    cpupdate_conf = '/etc/cpupdate.conf'
+    cpupdate_conf = '/etc/cpupdate.conf' if not TESTING_MODE else '/root/python/upgrade_blockers/tests/testfiles/cpupdate.conf'
     services = ['MYSQLUP', 'COURIERUP', 'DOVECOTUP', 'FTPUP', 'NSDUP', 'MYDNSUP', 'EXIMUP', 'BANDMINUP', 'PYTHONUP', 'SYSUP']
     with open(cpupdate_conf) as conf:
         for line in conf.readlines():
@@ -199,7 +199,9 @@ def v1136():
     #items left in services[] are either never/manual or not present at all
     #we need to remove anything not present as this is assumed to auto
     for srv in services[:]:
-        if subprocess.getstatusoutput('grep '+srv+' '+cpupdate_conf)[0] > 0:
+        cmd = 'grep '+srv+' '+cpupdate_conf
+        grep = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        if not grep.communicate()[0]:
             services.remove(srv)
     #items left now are blocking
     for srv in services[:]:
@@ -229,7 +231,9 @@ def v1144():
     v1144_specific = []
 
     #test for whmxfer
-    if subprocess.getstatusoutput('mysql -Bse "show databases"|grep whmxfer')[0] == 0:
+    cmd = "myslshow | grep whmxfer"
+    mysqladmin = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if not mysqladmin.communicate()[0] == '':
         v1144_specific.append("The whmxfer must be deleted")
 
     return v1144_specific if len(v1144_specific) > 0 else False
@@ -330,7 +334,7 @@ def v1168():
     if os.path.exists('/usr/local/lsws/'):
         #only complain about it tho
         v1168_specific.append("LiteSpeed is installed, ensure it is fully upgraded before updating cpanel")
-    
+
     #rpm check
     if os.path.exists('/etc/cpanel/ea4/is_ea4'):
         cmd = "rpm -q ea-apache24-config-runtime"
