@@ -18,6 +18,7 @@
 
   TESTS:
     SCRIPT SPECIFIC:
+     + getCpanelVersion(): returns current cPanel version
      + platformDepsCheck(): checks that OS is centos 6 or greater,
                            checks that python is 3
      + mysqlVersion(): return mysql version string as a float Maj.Min
@@ -68,6 +69,20 @@ import re, subprocess, platform
 if os.geteuid() > 0:
     print("Script must run as root")
     sys.exit(1)
+
+def getCpanelVersion():
+    version_file = '/usr/local/cpanel/version'
+    if os.path.exists(version_file):
+       #this is the easiest and preferred method
+        with open(version_file) as file:
+            version = file.readlines()[0].rstrip().split('.')
+            version = '.'.join(version[:2])
+    else:
+        if os.path.exists('/usr/sbin/whmapi1'):
+            cmd = "/usr/sbin/whmapi1 version|grep -m1 version|awk '{print $2}'|cut -d. -f1,2"
+            version = sp.Popen(cmd, stdout=sp.PIPE, shell=True)
+            version = version.communicate()[0].decode().rstrip()
+    return version if version else "cPanel too old to reliably determine version"
 
 def platformDepsCheck():
     try:
@@ -367,4 +382,3 @@ if any(specific_blockers):
             for i in fail:
                 print("+ " + i)
 
-#print(standard_blockers,specific_blockers)
