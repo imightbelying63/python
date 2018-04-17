@@ -154,8 +154,6 @@ def ftpMailserver():
 
 """BEGIN VERSION-SPECIFIC CHECKS ROUTINES"""
 
-'''All of these return a data type (usually a list) so handle appropriately'''
-
 def v1134():
     v1134_specific = []
     mysql_version = mysqlVersion()
@@ -163,7 +161,7 @@ def v1134():
     if mysql_version < 5.0:
         v1134_specific.append("MySQL version " + str(mysql_version) + "is less than 5.0")
 
-    return v1134_specific
+    return v1134_specific if len(v1134_specific) > 0 else False
 
 def v1136():
     v1136_specific = []
@@ -200,7 +198,7 @@ def v1136():
         else:
             v1136_specific.append(srv + " is set to manual or never in " + cpupdate_conf + ". Use WHM to set to automatic")
 
-    return v1136_specific
+    return v1136_specific if len(v1136_specific) > 0 else False
 
 def v1138():
     v1138_specific = []
@@ -210,7 +208,7 @@ def v1138():
         if not os.path.exists('/etc/interchangedisable'):
             v1138_specific.append('Interchange must be disabled.  Do so in Tweak Settings')
 
-    return v1138_specific
+    return v1138_specific if len(v1138_specific) > 0 else False
 
 def v1144():
     v1144_specific = []
@@ -219,7 +217,7 @@ def v1144():
     if subprocess.getstatusoutput('mysql -Bse "show databases"|grep whmxfer')[0] == 0:
         v1144_specific.append("The whmxfer must be deleted")
 
-    return v1144_specific
+    return v1144_specific if len(v1144_specific) > 0 else False
 
 def v1146():
     v1146_specific = []
@@ -237,9 +235,8 @@ def v1146():
                     v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + """.  Remove it with:
   /scripts/update_local_rpm_versions --del target_settings.cpanel-php53
   /scripts/check_cpanel_rpms --fix""")
-                #v1146_specific.append('cpanel-php53 RPM target set to installed in ' + rpm_versions_file + '.  Remove it with /scripts/update_local_rpm_versions --del target_settings.cpanel-php53 and then /scripts/check_cpanel_rpms --fix')
 
-    return v1146_specific
+    return v1146_specific if len(v1146_specific) > 0 else False
 
 def v1158():
     v1158_specific = []
@@ -264,7 +261,7 @@ def v1158():
 
 Ensure no *.versions file under /var/cpanel/rpm.versions.d/ has this set""")
 
-    return v1158_specific
+    return v1158_specific if len(v1158_specific) > 0 else False
 
 def v1160():
     v1160_specific = []
@@ -299,7 +296,7 @@ def v1160():
     else:
         v1160_specific.append("No listening web server on port 80")
 
-    return v1160_specific
+    return v1160_specific if len(v1160_specific) > 0 else False
 
 def v1162():
     v1162_specific = []
@@ -309,7 +306,7 @@ def v1162():
     if mysql_version < 5.5:
         v1162_specific.append("MySQL version " + str(mysql_version) + " is less than 5.5; 5.5+ is required")
 
-    return v1162_specific
+    return v1162_specific if len(v1162_specific) > 0 else False
 
 def v1168():
     v1168_specific = []
@@ -328,7 +325,7 @@ def v1168():
         if runtime_release_maj < 113:
             v1168_specific.append("The EasyApache 4 ea-apache24-config-runtime package must be version 1.0-113 or later.  Use yum update")
 
-    return v1168_specific
+    return v1168_specific if len(v1168_specific) > 0 else False
 
 """END VERSION-SPECIFIC CHECKS ROUTINES"""
 
