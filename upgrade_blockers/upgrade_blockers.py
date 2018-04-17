@@ -1,5 +1,10 @@
 """This script will check if a cPanel update is available, and if so, are there any blockers that will prevent it from proceeding.
 
+  TODO: add argparse handling
+  TODO: pretty formatting
+  TODO: probably remove any testing related code
+  TODO: test on live systems
+
   There is a version for python2 and python3.  if python3 is an uncertainty
    default to python2
 
@@ -11,17 +16,16 @@
    2: centos version too low
 
 
-
   TESTS:
     SCRIPT SPECIFIC:
-     +  platformDepsCheck(): checks that OS is centos 6 or greater,
+     + platformDepsCheck(): checks that OS is centos 6 or greater,
                            checks that python is 3
      + mysqlVersion(): return mysql version string as a float Maj.Min
 
     STANDARD CHECKS:
-     +  licenseCheck(): returns True/False
-                         simply checks that a license file exists,
-                         an invalid lisc implies a larger problem than the scope of this script
+     + licenseCheck(): returns True/False
+                        simply checks that a license file exists,
+                        an invalid lisc implies a larger problem than the scope of this script
      + readOnlyFS(): returns True/Valse
                      various filesystems / dirs need to be writable
      + rpmCheck(): returns True/False
@@ -52,6 +56,7 @@
 
   Author: khughes
   Version: 0.1
+  Script format: python3
 """
 
 TESTING_MODE = 1 #remove any testing mode code
