@@ -42,6 +42,18 @@ if os.geteuid() > 0:
 def getHostname():
     return os.uname()[1]
 
+def findCpanelTiers():
+    cmd = 'curl -s http://httpupdate.cpanel.net/cpanelsync/TIERS'
+    curl = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    data = curl.communicate()[0]
+    tiers_list = data.splitlines()[1:5]
+
+    tiers = {}
+    for t in tiers_list:
+        tiers[t.split(":")[0]] = t.split(":")[1]
+
+    return tiers
+
 def getCpanelVersion():
     version_file = '/usr/local/cpanel/version'
     if os.path.exists(version_file):
@@ -62,9 +74,13 @@ def mysqlVersion():
     mysql_version = mysqladmin.communicate()[0].expandtabs().rstrip().split()[2]
     return float(''.join(mysql_version[:3]))
 
+"""BEGIN STANDARD CHECKS ROUTINES"""
+
 def preCannedReply(standard=[], specific=[]):
     cpanel_version = getCpanelVersion()
     hostname = getHostname()
+    release_version = findCpanelTiers()['release'].split(".")
+    release_version = ".".join(release_version[:2])
 
     #build the strings for each blockers
     standard_string = str()
@@ -76,11 +92,11 @@ def preCannedReply(standard=[], specific=[]):
        for fail in specific:
            if not fail == False:
                for i in fail:
-                   specific_string += "- " + i + "\n"  
-        
+                   specific_string += "- " + i + "\n"
+
     return """Hello,
 
-This ticket is to notify you that your server %s is currently running cPanel version %s which is out of date and has not been receiving updates.
+This ticket is to notify you that your server %s is currently running cPanel version %s which is out of date and has not been receiving updates.  The most recent Release version of cPanel is %s.
 
 In the past year alone cPanel has discovered and patched more than thirty potential vulnerabilities of various levels of severity. The majority of these vulnerabilities were self-reported and therefore not a threat at the time, however because they have since been disclosed there is an elevated potential that these exploits could be used against outdated versions of the software, potentially resulting in your server itself or the sites that it hosts becoming compromised.
 
@@ -92,9 +108,7 @@ It looks like these updates are currently being held back by:
 %s
 However it's possible that there will be other changes that need to be made along the way in order to get you to the most current version. Most of these blockers are easy enough to fix such as missing configuration options, but occasionally in order to move forward with updates, larger changes will need to be made as well.
 
-Given the concerns listed above, would it be acceptable for us to begin addressing these issues and performing the updates necessary to get your server on a currently supported version of cPanel?""" % (hostname, cpanel_version, standard_string, specific_string)
-
-"""BEGIN STANDARD CHECKS ROUTINES"""
+Given the concerns listed above, would it be acceptable for us to begin addressing these issues and performing the updates necessary to get your server on a currently supported version of cPanel?""" % (hostname, cpanel_version, release_version, standard_string, specific_string)
 
 def licenseCheck():
     if os.path.isfile("/usr/local/cpanel/cpanel.lisc"):
