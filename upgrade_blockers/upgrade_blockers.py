@@ -42,6 +42,16 @@ if os.geteuid() > 0:
 def getHostname():
     return os.uname()[1]
 
+def findCpanelTiers():
+    proc = subprocess.run(['curl', 'http://httpupdate.cpanel.net/cpanelsync/TIERS', '-s'], stdout=subprocess.PIPE)
+    tiers_list = proc.stdout.decode().splitlines()[1:5]
+
+    tiers = {}
+    for t in tiers_list:
+        tiers[t.split(":")[0]] = t.split(":")[1]
+
+    return tiers
+
 def getCpanelVersion():
     version_file = '/usr/local/cpanel/version'
     if os.path.exists(version_file):
