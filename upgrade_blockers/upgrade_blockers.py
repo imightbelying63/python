@@ -130,10 +130,9 @@ def readOnlyFS():
 
 def rpmCheck():
     test_rpm = 'test-package2' #this is in http://syspackages.sourcedns.com/packages/stable/generic/noarch/
-    return False
 
     #skip rpm section for testing
-    if TESTING_MODE == 1: return True
+    if args.skip_rpm_check: return True
 
     if subprocess.getstatusoutput('yum -y --quiet install ' + test_rpm)[0] == 0:
         if subprocess.getstatusoutput('yum -y --quiet remove ' + test_rpm)[0] == 0:
