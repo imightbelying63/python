@@ -59,7 +59,7 @@
   Script format: python3
 """
 
-TESTING_MODE = 1 #remove any testing mode code
+TESTING_MODE = 0 #remove any testing mode code
 
 import os, sys
 import re, subprocess, platform
@@ -344,17 +344,21 @@ if not rpmCheck():
     standard_blockers.append('The RPM databases is corrupt, or yum is currently unusable')
 
 #begin tests that return data types rather than True/False
+test_ftpmail = ftpMailserver()
 
-v1134()
-v1136()
-v1138()
-v1144()
-v1146()
-v1158()
-v1160()
-v1162()
-v1168()
+specific_blockers.extend( (ftpMailserver(), v1134(), v1136(), v1138(), v1144(), v1146(), v1158(), v1160(), v1162(), v1168()) )
 
+"""test_1134 = v1134()
+test_1136 = v1136()
+test_1138 = v1138()
+test_1144 = v1144()
+test_1146 = v1146()
+test_1158 = v1158()
+test_1160 = v1160()
+test_1162 = v1162()
+test_1168 = v1168()"""
+
+print(specific_blockers)
 
 """END TESTS"""
 
