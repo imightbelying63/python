@@ -3,7 +3,8 @@
   There is a version for python2 and python3.  if python3 is an uncertainty
    default to python2
 
-  At present, most code is separated out into single test files stored under tests/
+  All version specific routines are written under tests/ with python2 versions under
+   tests/python2
 
   Current exit codes:
    1: non-root
@@ -18,16 +19,22 @@
      + mysqlVersion(): return mysql version string as a float Maj.Min
 
     standard checks:
-     +  licenseCheck(): simply checks that a license file exists,
-                      an invalid lisc implies a larger problem than the scope of this script
-     + readOnlyFS(): various filesystems / dirs need to be writable
-     + rpmCheck(): verifies validity of rpmdb with a yum install/remove
+     +  licenseCheck(): returns True/False
+                         simply checks that a license file exists,
+                         an invalid lisc implies a larger problem than the scope of this script
+     + readOnlyFS(): returns True/Valse
+                     various filesystems / dirs need to be writable
+     + rpmCheck(): returns True/False
+                    verifies validity of rpmdb with a yum install/remove
+     + ftpMailserver(): Return False or a list if errors are found
+                        some older versions complain with ftpserver or mailserver is black or
+                        invalid in /var/cpanel/cpanel.config
 
   Author: khughes
   Version: 0.1
 """
 
-TESTING_MODE = 1
+TESTING_MODE = 1 #remove any testing mode code
 
 import os, sys
 import re, subprocess, platform
@@ -118,11 +125,13 @@ def ftpMailserver():
     if not mailserver_is_set:
         ftp_mailserver.append("The mailserver value in " + conf_file + " is invalid. Valid values are dovecot or courier")
 
-    return ftp_mailserver if len(ftp_server) > 0 else False
+    return ftp_mailserver if len(ftp_mailserver) > 0 else False
 
 """END STANDARD CHECKS ROUTINES"""
 
 """BEGIN VERSION-SPECIFIC CHECKS ROUTINES"""
+
+'''All of these return a data type (usually a list) so handle appropriately'''
 
 def v1134():
     v1134_specific = []
@@ -144,7 +153,7 @@ def v1136():
         v1136_specific.append("Insufficient space under /usr/local/cpanel. " + free + "GB available, 1.6GB required")
 
     #services check
-    cpupdate_conf = '/etc/cpupdate.conf' if not TESTING else '/root/python/upgrade_blockers/tests/testfiles/cpupdate.conf'
+    cpupdate_conf = '/etc/cpupdate.conf' if not TESTING_MODE else '/root/python/upgrade_blockers/tests/testfiles/cpupdate.conf'
     services = ['MYSQLUP', 'COURIERUP', 'DOVECOTUP', 'FTPUP', 'NSDUP', 'MYDNSUP', 'EXIMUP', 'BANDMINUP', 'PYTHONUP', 'SYSUP']
     with open(cpupdate_conf) as conf:
         for line in conf.readlines():
@@ -315,6 +324,16 @@ if not rpmCheck():
     standard_blockers.append('The RPM databases is corrupt, or yum is currently unusable')
 
 #begin tests that return data types rather than True/False
+
+v1134()
+v1136()
+v1138()
+v1144()
+v1146()
+v1158()
+v1160()
+v1162()
+v1168()
 
 
 """END TESTS"""
