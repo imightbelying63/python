@@ -57,8 +57,10 @@ def getCpanelVersion():
     return version if version else "cPanel too old to reliably determine version"
 
 def mysqlVersion():
-    version = subprocess.getstatusoutput('mysqladmin version|grep -i "server version"')[1].expandtabs().split()[2]
-    return float(''.join(version[:3]))
+    cmd = "mysqladmin version|grep 'Server version'"
+    mysqladmin = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    mysql_version = mysqladmin.communicate()[0].expandtabs().rstrip().split()[2]
+    return float(''.join(mysql_version[:3]))
 
 def preCannedReply(standard=[], specific=[]):
     cpanel_version = getCpanelVersion()
@@ -118,13 +120,19 @@ def readOnlyFS():
     return True
 
 def rpmCheck():
-    test_rpm = 'test-package2' #this is in http://syspackages.sourcedns.com/packages/stable/generic/noarch/
+    test_rpm = 'test-package2'
 
     #skip rpm section for testing
     if args.skip_rpm_check: return True
 
-    if subprocess.getstatusoutput('yum -y --quiet install ' + test_rpm)[0] == 0:
-        if subprocess.getstatusoutput('yum -y --quiet remove ' + test_rpm)[0] == 0:
+    cmd1 = "yum -y --quiet install " + test_rpm
+    cmd2 = "yum -y --quiet remove " + test_rpm
+
+    rpm1 = subprocess.Popen(cmd1, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if not rpm1.communicate()[1]:
+        rpm2 = subprocess.Popen(cmd2, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if not rpm2.communicate()[1]:
+            #rpm check successfull
             return True
 
     return False
