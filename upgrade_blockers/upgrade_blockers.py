@@ -22,6 +22,7 @@
 """
 
 TESTING_MODE = 0 #remove any testing mode code
+SCRIPT_VERSION = '1.0'
 
 import os, sys
 import re, subprocess, platform, argparse
@@ -36,7 +37,7 @@ group.add_argument("--format", help="Formats the output into a pre-canned text b
 args = parser.parse_args()
 
 if args.version:
-    print(sys.argv[0] + " version 1.0")
+    print(sys.argv[0] + " " + SCRIPT_VERSION)
     sys.exit(0)
 
 #This script must be run as root
