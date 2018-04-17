@@ -61,10 +61,10 @@ def platformDepsCheck():
             print("CentOS 6 or above is required")
             sys.exit(2)
         if int(sys.version[:1]) < 3:
-            print("Python3 is required")
+            print("Python3 unavailable; use the python2 version")
             sys.exit(2)
     except:
-        print("Python 3 is required")
+        print("Python3 unavailable; use the python2 version")
         sys.exit(2)
 
 def mysqlVersion():
