@@ -7,3 +7,8 @@ for mod in to_import:
     exec('import '+mod)
   except ImportError:
     print('failed to import '+mod) #this is a fake function as an example
+    """
+    could use pip from here
+    import pip
+    pip.main(['install', mod])
+    """
