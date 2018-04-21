@@ -5,3 +5,4 @@
 #velocity
 time	alpha	temperature	velocity
 0	1.2	300.0		15.0
+63	36	960.42		0
