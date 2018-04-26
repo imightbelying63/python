@@ -1,14 +1,17 @@
 """This will look at all domains listed in apache httpd.conf 
    and return if it resolves to the server or not"""
 
-from subprocess import check_output
+import subprocess
 import re
 import dns.resolver
 import os,sys
 
 #server_ip_addr = os.popen('ip addr show eth0').read().split('inet ')[1].split("/")[0]
 #need to have all IPs actually
-ips = check_output(['hostname', '--all-ip-addresses']).decode().split(" ")[:-1]
+cmd = 'hostname --all-ip-addresses'
+hostname_run = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+ips = hostname_run.communicate()[0].rstrip()
+ips = ips.split()
 
 #at some point add logic for non-cpanel servers
 APACHECONF = '/etc/apache2/conf/httpd.conf'
@@ -67,9 +70,12 @@ nx_domains.sort()
 print"Local Domains"
 print "-"*12
 print "\n".join(" {1}".format(*k) for k in enumerate(local_domains))
+print "\n"
 print "Remote Domains"
 print "-"*12
 print "\n".join(" {1}".format(*k) for k in enumerate(remote_domains))
+print "\n"
 print "Do not resolve"
 print "-"*12
 print "\n".join(" {1}".format(*k) for k in enumerate(nx_domains))
+print "\n"
