@@ -4,8 +4,8 @@ from random import *
 import argparse as ap
 
 PASSWORD_LENGTH = 13
-EXTENDED_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_!@#$%^&*()+'
-CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_'
+CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+EXTENDED_CHARACTERS = CHARACTERS+'_!@#$%^&*()+'
 
 #argument handling
 p = ap.ArgumentParser()

@@ -12,7 +12,7 @@ def skippingComments(file_name):
         return False
     temp = []
     with open(file_name) as text:
-        for line in text.readlines():
+        for line in text:
             if re.match('^#|^[a-zA-Z]', line): continue
             temp.append(line.rsplit()[2])
 
