@@ -14,7 +14,7 @@ ips = hostname_run.communicate()[0].rstrip()
 ips = ips.split()
 
 #at some point add logic for non-cpanel servers
-APACHECONF = '/etc/apache2/conf/httpd.conf'
+APACHECONF = '/etc/apache2/conf/httpd.conf' if os.path.exists('/etc/cpanel/ea4/is_ea4') else '/usr/local/apache/conf/httpd.conf'
 
 if not os.path.isfile(APACHECONF):
     sys.exit(APACHECONF + ' does not exist; cannot proceed')
