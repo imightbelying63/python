@@ -19,7 +19,7 @@ parser.add_argument("domains", help="extract domains from httpd and report if re
 args = parser.parse_args()
 
 
-def cpanel_check_ssp():
+def cpanelCheckSsp():
     print "One moment..."
     print ""
     cmd = "curl https://ssp.cpanel.net/run -s| sh"
@@ -40,6 +40,7 @@ def domains():
         try:
            urllib.urlretrieve(RAW_DOMAINS, 'domains2.py')
            import domains2
+           #clean up the downloaded files
            domains2_file = RAW_DOMAINS.split(os.path.sep)[-1]
            if os.path.exists(domains2_file):
                os.remove(domains2_file)
@@ -52,11 +53,11 @@ def domains():
 def main():
     #work down the list of potential commands
     if args.check == "check":
-        print 'do check'
+        cpanelCheckSsp()
     elif args.check == 'whm_backdoor':
-        print 'do whm_backdoor'
+        whmBackdoor()
     elif args.check == 'domains':
-        print 'do domains'
+        domains()
     else:
         parser.print_help()
 
