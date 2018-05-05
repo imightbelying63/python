@@ -11,6 +11,9 @@
 import os, sys, subprocess
 import argparse as ap
 
+#URL for domains.py on github
+RAW_DOMAINS = 'https://raw.githubusercontent.com/imightbelying63/python/master/cpanel/domains2.py'
+
 parser = ap.ArgumentParser()
 parser._positionals.title = "Script Commands"
 parser.add_argument("check", help="invoke cPanel SSP server checking util", nargs='?', default=False)
@@ -18,6 +21,8 @@ parser.add_argument("whm_backdoor", help="generates a root login session to WHM"
 parser.add_argument("domains", help="extract domains from httpd and report if resolve locally or not", nargs='?', default=False)
 args = parser.parse_args()
 
+def isEA4():
+    return True if os.path.exists('/etc/cpanel/ea4/is_ea4') else False
 
 def cpanelCheckSsp():
     print "One moment..."
@@ -33,7 +38,6 @@ def whmBackdoor():
     return None
 
 def domains():
-    RAW_DOMAINS = 'https://raw.githubusercontent.com/imightbelying63/python/master/cpanel/domains2.py'
     try:
         import domains2
     except ImportError:
