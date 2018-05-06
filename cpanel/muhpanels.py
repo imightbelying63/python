@@ -8,7 +8,7 @@
    as script commands, but just parsing the input of the first positional (args.check)
    in order to control script flow
 """
-import os, sys, subprocess
+import os, sys, subprocess, re
 import argparse as ap
 
 #URL for domains.py on github
@@ -19,6 +19,7 @@ parser._positionals.title = "Script Commands"
 parser.add_argument("check", help="invoke cPanel SSP server checking util", nargs='?', default=False)
 parser.add_argument("whm_backdoor", help="generates a root login session to WHM", nargs='?', default=False)
 parser.add_argument("domains", help="extract domains from httpd and report if resolve locally or not", nargs='?', default=False)
+parser.add_argument("addons", help="show all addon domains on a given cpanel account", nargs='?', default=False)
 args = parser.parse_args()
 
 def isEA4():
@@ -54,6 +55,35 @@ def domains():
             print 'unable to retrieve required script'    
     return None
 
+def addonDomains(user):
+    #TODO: determine if domain resolves locally or not
+    addon_reg = re.compile("^addon_domains:\s*$")
+    userdata_file = '/var/cpanel/userdata/'+user+'/main'
+    if not os.path.exists(userdata_file): return False
+
+    addons = []
+    set_addons = 0
+    with open(userdata_file) as file:
+        for line in file:
+            if addon_reg.match(line):
+                set_addons = 1
+                continue
+            if set_addons == 1:
+                if "main_domain" not in line:
+                    addon_dom = line.strip().split(":")[0]
+                    addons.append(addon_dom)
+                else:
+                    set_addons = 0
+    print
+    if len(addons) > 0:
+        print 'Addon domains for account '+ user+':'
+        print
+        for dom in addons:
+            print dom
+    else:
+        print 'No addons found for account '+user
+    print
+
 def main():
     #work down the list of potential commands
     if args.check == "check":
@@ -62,6 +92,11 @@ def main():
         whmBackdoor()
     elif args.check == 'domains':
         domains()
+    elif args.check == 'addons':
+        if not args.whm_backdoor:
+            print "must supply cpanel account"
+        else:
+            addonDomains(args.whm_backdoor)
     else:
         parser.print_help()
 
