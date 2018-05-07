@@ -43,6 +43,7 @@ def domains():
         import domains2
     except ImportError:
         try:
+           import urllib
            urllib.urlretrieve(RAW_DOMAINS, 'domains2.py')
            import domains2
            #clean up the downloaded files
