@@ -6,7 +6,9 @@
 
    This uses argparse in a slightly unconventional way by displaying positional args
    as script commands, but just parsing the input of the first positional (args.check)
-   in order to control script flow
+   in order to control script flow.  second (and maybe 3rd) positional args
+   are used to pass extra parameters to the script.  this is not how argparse
+   was intended to be used.
 """
 import os, sys, subprocess, re
 import argparse as ap
@@ -20,6 +22,7 @@ parser.add_argument("check", help="invoke cPanel SSP server checking util", narg
 parser.add_argument("whm_backdoor", help="generates a root login session to WHM", nargs='?', default=False)
 parser.add_argument("domains", help="extract domains from httpd and report if resolve locally or not", nargs='?', default=False)
 parser.add_argument("addons", help="show all addon domains on a given cpanel account", nargs='?', default=False)
+parser.add_argument("ea_version", help='is EA3 or EA4', nargs='?', default=False)
 args = parser.parse_args()
 
 def isEA4():
@@ -93,6 +96,8 @@ def main():
         whmBackdoor()
     elif args.check == 'domains':
         domains()
+    elif args.check == 'ea_version':
+        print "EasyApache4" if isEA4() == True else 'EasyApache 3'
     elif args.check == 'addons':
         if not args.whm_backdoor:
             print "must supply cpanel account"
