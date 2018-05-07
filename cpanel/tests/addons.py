@@ -31,7 +31,14 @@ def addonDomains(user='imightbe'):
                     addons.append(addon_dom)
                 else:
                     set_addons = 0
-    return addons
+    if len(addons) > 0:
+        print 'Addon domains for account '+ user+':'
+        print
+        for dom in addons:
+            print dom    
+    else:
+        print 'No addons found for account '+user
+            
 
 if __name__ == "__main__":
-    print addonDomains()
+    addonDomains('hurntracker')
