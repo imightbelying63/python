@@ -2,7 +2,7 @@
 I would like an extended "dig" tool, something where you put in say a domain and it says where it resolves, where mail is, who has authoritative nameservers, NS records, who owns the IP, what reverse IP is, etc
 """
 
-import sys, socket
+import sys, socket, subprocess
 try:
     import dns.resolver as resolver
 except ModuleNotFoundError:
@@ -44,3 +44,6 @@ ptr_q = my_resolver.query(rev_ip, 'PTR')
 print("PTR record:")
 for rdata in ptr_q:
     print(rdata)
+print("")
+print("WHOIS on "+ip)
+print(subprocess.getoutput('whois '+ip))
