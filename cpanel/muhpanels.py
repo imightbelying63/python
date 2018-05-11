@@ -23,6 +23,7 @@ parser.add_argument("whm_backdoor", help="generates a root login session to WHM"
 parser.add_argument("domains", help="extract domains from httpd and report if resolve locally or not", nargs='?', default=False)
 parser.add_argument("addons", help="show all addon domains on a given cpanel account", nargs='?', default=False)
 parser.add_argument("ea_version", help='is EA3 or EA4', nargs='?', default=False)
+parser.add_argument("users", help="list all cpanel user account names", nargs='?', default=False)
 args = parser.parse_args()
 
 def isEA4():
@@ -63,7 +64,9 @@ def addonDomains(user):
     #TODO: determine if domain resolves locally or not
     addon_reg = re.compile("^addon_domains:\s*$")
     userdata_file = '/var/cpanel/userdata/'+user+'/main'
-    if not os.path.exists(userdata_file): return False
+    if not os.path.exists(userdata_file):
+        print 'No such user '+user
+        return False
 
     addons = []
     set_addons = 0
@@ -88,6 +91,19 @@ def addonDomains(user):
         print 'No addons found for account '+user
     print
 
+def cpanelUsers():
+    user_dir = '/var/cpanel/users/'
+    users_list = os.listdir(user_dir)
+    users_list.remove('system')
+    users_list.sort()
+
+    print ''
+    print 'cPanel user accounts:'
+    print ''
+    for user in users_list:
+        print user
+    print ''
+
 def main():
     #work down the list of potential commands
     if args.check == "check":
@@ -103,6 +119,8 @@ def main():
             print "must supply cpanel account"
         else:
             addonDomains(args.whm_backdoor)
+    elif args.check == 'users':
+        cpanelUsers()
     else:
         parser.print_help()
 
