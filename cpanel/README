@@ -1,1 +1,11 @@
 collection of scripts for doing Things on cPanel servers
+
+muhpanelz.py:
+access various useful commands for data reporting on cpanel, plus a few commands
+ for quality of life.
+
+to use on any server:
+
+  wget -O khcpanel.py 'https://raw.githubusercontent.com/imightbelying63/python/master/cpanel/muhpanels.py'
+
+invoke with `python2 khcpanel.py -h`
