@@ -9,4 +9,3 @@ to use on any server:
   wget -O khcpanel.py 'https://raw.githubusercontent.com/imightbelying63/python/master/cpanel/muhpanels.py'
 
 invoke with `python2 khcpanel.py -h`
-
