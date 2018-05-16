@@ -5,7 +5,7 @@
    TODO: show if is ea3 or 4
 
    This uses argparse in a slightly unconventional way by displaying positional args
-   as script commands, but just parsing the input of the first positional (args.check)
+   as script commands, but just parsing the input of the first positional (args.addons)
    in order to control script flow.  second (and maybe 3rd) positional args
    are used to pass extra parameters to the script.  this is not how argparse
    was intended to be used.
@@ -18,7 +18,7 @@ RAW_DOMAINS = 'https://raw.githubusercontent.com/imightbelying63/python/master/c
 
 parser = ap.ArgumentParser()
 parser._positionals.title = "Script Commands"
-parser.add_argument("addons", help="show all addon domains on a given cpanel account", nargs='?', default=False)
+parser.add_argument("addons", help="[user] show all addon domains on a given cpanel account", nargs='?', default=False)
 parser.add_argument("check", help="invoke cPanel SSP server checking util", nargs='?', default=False)
 parser.add_argument("domains", help="extract domains from httpd and report if resolve locally or not", nargs='?', default=False)
 parser.add_argument("ea_version", help='is EA3 or EA4', nargs='?', default=False)
@@ -106,20 +106,20 @@ def cpanelUsers():
 
 def main():
     #work down the list of potential commands
-    if args.check == "check":
+    if args.addons == "check":
         cpanelCheckSsp()
-    elif args.check == 'whm_backdoor':
+    elif args.addons == 'whm_backdoor':
         whmBackdoor()
-    elif args.check == 'domains':
+    elif args.addons == 'domains':
         domains()
-    elif args.check == 'ea_version':
+    elif args.addons == 'ea_version':
         print "EasyApache4" if isEA4() == True else 'EasyApache 3'
-    elif args.check == 'addons':
-        if not args.whm_backdoor:
+    elif args.addons == 'addons':
+        if not args.check:
             print "must supply cpanel account"
         else:
-            addonDomains(args.whm_backdoor)
-    elif args.check == 'users':
+            addonDomains(args.check)
+    elif args.addons == 'users':
         cpanelUsers()
     else:
         parser.print_help()
