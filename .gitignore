@@ -1,5 +1,6 @@
 # my own ignores
 text/shortener.txt
+upgrade_blockers/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
