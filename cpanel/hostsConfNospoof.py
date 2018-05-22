@@ -9,7 +9,7 @@ try:
 except:
     pass
 
-HOSTS_CONF = 'hosts.conf'
+HOSTS_CONF = '/etc/hosts.conf'
 HOSTS_CONF_BAK = HOSTS_CONF+".bak"
 
 def hostsConfNospoof():
