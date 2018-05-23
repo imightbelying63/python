@@ -9,3 +9,18 @@ to use on any server:
   wget -O khcpanel.py 'https://raw.githubusercontent.com/imightbelying63/python/master/cpanel/muhpanels.py'
 
 invoke with `python2 khcpanel.py -h`
+
+
+----
+
+domains.py and domains2.py
+ searches through httpd.conf for domains and returns if the domain
+ resolves to the server or not.
+
+ domains2.py is specifically written for python2 which is most often in
+ use on RHEL/CentOS
+
+----
+
+hostConfNospoof.py
+  search for `nospoof` directive in host.conf and remove it
