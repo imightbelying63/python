@@ -1,5 +1,5 @@
 """
-    This file searches for an old directive in host.conf 'nospoof' and removes it
+    This script searches for an old directive in host.conf 'nospoof' and removes it
     if it's found.  otherwise, do nothing
 """
 
