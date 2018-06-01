@@ -50,6 +50,7 @@ for domain in server_names:
     try:
         answer = dns.resolver.query(domain, 'A')
     except:
+        if domain.split('.')[-1] == "localhost": continue
         nx_domains.append(domain)
         continue
     #if len(answer) == 0:
