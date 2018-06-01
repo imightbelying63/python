@@ -6,8 +6,6 @@ import re
 import dns.resolver
 import os,sys
 
-#server_ip_addr = os.popen('ip addr show eth0').read().split('inet ')[1].split("/")[0]
-#need to have all IPs actually
 ips = check_output(['hostname', '--all-ip-addresses']).decode().split(" ")[:-1]
 
 #at some point add logic for non-cpanel servers
@@ -35,8 +33,6 @@ with open(APACHECONF) as conf_file:
 
 #filter out raw IPs, and sort into unique entries
 server_names = list(set(filter(lambda x: not regex_ipaddr.match(x), server_names)))
-#sort into unique entries only
-#server_names = list(set(server_names))
 
 #DNS look ups
 local_domains = []
@@ -53,9 +49,6 @@ for domain in server_names:
         if domain.split('.')[-1] == "localhost": continue
         nx_domains.append(domain)
         continue
-    #if len(answer) == 0:
-        #nx_domains.append(domain)
-        #continue
     if answer[0].to_text() in ips:
         local_domains.append(domain)
     else:
