@@ -1,11 +1,18 @@
-#!/bin/env python
+import re
 
-for line in open("wwwacct.conf"):
-  if "HOMEMATCH" in line:
-    hmatch = line
-    break
+def grep(search, file, count=-1):
+    output = ''
+    with open(file) as f:
+        for line in f:
+            if re.search(search, line):
+                if count >= 1:
+		    output += line
+                    count -= 1
+		    continue
+                elif count == 0: return output
+		else:
+		    output += line
+		    continue
+	return output
 
-if hmatch:
-  hsplit = hmatch.split(" ")[1]
-  print hsplit.rstrip("\n")
-
+    return None
