@@ -1,6 +1,7 @@
 import sys,re,subprocess
 import dns.resolver
 from os import path
+from glob import glob
 
 NORMAL = '\033[0m'
 BOLD = '\033[1m'
@@ -9,17 +10,17 @@ def usage():
     print "Usage:\twhodat domain.com [--verbose]\n",
 
 def grep(search, file, count=-1):
-    output = ''
+    output = []
     with open(file) as f:
         for line in f:
             if re.search(search, line):
                 if count >= 1:
-                    output += line
+                    output.append(line)
                     count -= 1
                     continue
                 elif count == 0: return output
                 else:
-                    output += line
+                    output.append(line)
                     continue
         return output
 
@@ -60,7 +61,7 @@ else:
     apachectl_command = "httpd -M"
 
 #Assign a variable for the cpanel userdata, to be called for many things later on
-userdatadomain = grep("^"+domain+":", "/etc/userdatadomains")
+userdatadomain = grep("^"+domain+":", "/etc/userdatadomains")[0]
 
 #Make sure the user exists on the system. 
 if userdatadomain is not None:
@@ -76,7 +77,7 @@ if ea_ver == 4:
     php_ver = userdatadomain.split("=")[18] if len(userdatadomain.split("=")) > 17 else None
     #If using inherit, the above will not properly determine the version, and the php_ver var will be empty. If thats the case, just use the default:
     if (php_ver == None) or  (php_ver.strip() == 'inherit'):
-        php_ver = grep('default:', '/etc/cpanel/ea4/php.conf').split(' ')[1].strip()
+        php_ver = grep('default:', '/etc/cpanel/ea4/php.conf')[0].split(' ')[1].strip()
 elif ea_ver == 3:
     php = subprocess.Popen("php -v |head -1 |awk '{print $2}'", shell=True, stdout=subprocess.PIPE)
     php_ver = php.communicate()[0]
@@ -126,13 +127,13 @@ print "A Record:\t", a_record
 
 #Only print the ipv6 AAAA records if they exist
 if AAAA_record is not None:
-    print "AAAA Record:\t", AAAA_record
+    print "AAAA Record:\t", AAAA_record,
 
 print "PHP Version:\t", php_ver,
 
 #Logic to display the PHP Handler
 if fpm_status.strip() == "Enabled":
-    print "PHP Handler:\tPHP-FPM ", fpm_status
+    print "PHP Handler:\tPHP-FPM ", fpm_status,
 elif php_handler.strip() == "dso":
     #determine if mod_ruid is in place
     if subprocess.Popen("apachectl -M 2>&1 | grep ruid", shell=True, stdout=subprocess.PIPE).communicate()[0] != '':
@@ -141,9 +142,9 @@ elif php_handler.strip() == "dso":
         ruid_status = "Without Mod_RUID (PHP run as nobody, NOT the user)"
     if ea_ver == 3:
         ruid_status = subprocess.Popen('/usr/local/cpanel/bin/rebuild_phpconf --current |grep RUID2', shell=True, stdout=subprocess.PIPE).communicate()[0]
-    print "PHP Handler:\tDSO ", ruid_status
+    print "PHP Handler:\tDSO ", ruid_status,
 elif php_handler.strip() == "suphp":
-    print "PHP Handler:\tSuPHP"
+    print "PHP Handler:\tSuPHP",
 elif php_handler.strip() == "cgi":
     #determine if SuExec is in place
     if subprocess.Popen("apachectl -M 2>&1 | grep suexec", shell=True, stdout=subprocess.PIPE).communicate()[0] != '':
@@ -152,7 +153,7 @@ elif php_handler.strip() == "cgi":
         suexec_status = "- WITHOUT SuExec"
     if ea_ver == 3:
         suexec_status = subproces.Popen("/usr/local/cpanel/bin/rebuild_phpconf --current |grep SUEXEC", shell=True, stdout=subprocess.PIPE).communicate()[0]
-    print "PHP Handler:\tCGI ", suexec_status
+    print "PHP Handler:\tCGI ", suexec_status,
 elif php_handler.strip() == "fcgi":
     #determine if SuExec is in place
     if subprocess.Popen("apachectl -M 2>&1 | grep suexec", shell=True, stdout=subprocess.PIPE).communicate()[0] != '':
@@ -161,9 +162,9 @@ elif php_handler.strip() == "fcgi":
         suexec_status = "- WITHOUT SuExec"
     if ea_ver == 3:
         suexec_status = subproces.Popen("/usr/local/cpanel/bin/rebuild_phpconf --current |grep SUEXEC", shell=True,     stdout=subprocess.PIPE).communicate()[0]
-    print "PHP Handler:\tFast CGI ", suexec_status
+    print "PHP Handler:\tFast CGI ", suexec_status,
 elif php_handler.strip() == "none":
-    print "PHP Handler:\tNONE - Is this intended?"
+    print "PHP Handler:\tNONE - Is this intended?",
     
 #Check for userdata Apache includes for the domain.
 #Need to check the subdomain for the include of an addon domain
@@ -172,4 +173,15 @@ if domain_type.strip() == "addon":
 else:
     include_domain = domain
 
+active_includes = []
+active_includes_list = grep(include_domain, apache_conf)
+for i in active_includes_list:
+    if re.match('^Include\s+.*', i.lstrip()):
+        active_includes.append(i.split('"')[1])
+
+if len(active_includes):
+    for include in active_includes:
+        if glob(include):
+	    for glob_include in glob(include):
+	        print "VHOST INCLUDE:\t", glob_include
 
